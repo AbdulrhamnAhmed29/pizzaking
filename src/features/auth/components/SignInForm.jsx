@@ -30,7 +30,6 @@ const SignInForm = () => {
 
   const onSubmit = (data) => {
     loginMutation.mutate(data)
-    console.log('Form Data:', data)
   }
 
   return (

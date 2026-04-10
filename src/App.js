@@ -5,20 +5,16 @@ import { routes } from './routes'
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: 1, refetchOnWindowFocus: false },
   },
 })
 
+// سبينر بتصميم ذهبي ليناسب ستايلك
 const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+  <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#D4AF37]"></div>
   </div>
 )
-
-
 
 function App() {
   return (
@@ -28,22 +24,26 @@ function App() {
           <Routes>
             {routes.map((route, index) => {
               if (route.redirect) {
+                return <Route key={index} path={route.path} element={<Navigate to={route.redirect} replace />} />
+              }
+
+              // في حالة وجود أب (Layout) و أبناء (Children)
+              if (route.children) {
                 return (
-                  <Route
-                    key={index}
-                    path={route.path}
-                    element={<Navigate to={route.redirect} replace />}
-                  />
+                  <Route key={index} path={route.path} element={<route.element />}>
+                    {route.children.map((child, childIndex) => (
+                      <Route 
+                        key={childIndex} 
+                        path={child.path} 
+                        element={<child.element />} 
+                      />
+                    ))}
+                  </Route>
                 )
               }
 
-              return (
-                <Route
-                  key={index}
-                  path={route.path}
-                  element={<route.element />}
-                />
-              )
+              // المسارات العادية (مثل Login)
+              return <Route key={index} path={route.path} element={<route.element />} />
             })}
           </Routes>
         </Suspense>

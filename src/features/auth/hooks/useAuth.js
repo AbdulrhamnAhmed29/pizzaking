@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import authService from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie'; // لازم تثبتها: npm i js-cookie
+import Cookies from 'js-cookie'; 
 
 // Login Hook
 export const useLogin = () => {
