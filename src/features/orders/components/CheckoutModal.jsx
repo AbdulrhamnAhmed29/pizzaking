@@ -33,6 +33,7 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
     });
 
     const discountValue = watch("discount", 0);
+    
     const finalPrice = totalAmount - (Number(discountValue) || 0);
 
     const onSubmit = (data) => {

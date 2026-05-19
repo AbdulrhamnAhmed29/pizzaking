@@ -4,9 +4,8 @@ import { motion } from "framer-motion";
 import { useOrderMutation } from "../../orders/hooks/useMutationOrders";
 import { useParams, useNavigate } from "react-router-dom";
 import { useOrders } from "../hooks/useGetOrders";
-import { ArrowRight, Save, User, CreditCard, Hash } from "lucide-react";
+import { ArrowRight, Save, User, CreditCard, Hash, PlusCircle, MinusCircle } from "lucide-react";
 import Swal from 'sweetalert2';
-
 
 const UpdateOrderPage = () => {
     const { id } = useParams();
@@ -18,42 +17,45 @@ const UpdateOrderPage = () => {
         register,
         handleSubmit,
         reset,
+        watch,
         formState: { errors }
     } = useForm({
         defaultValues: {
             customerName: "",
             paymentStatus: "",
+            update_price: 0,
+            priceAction: "plus"
         }
     });
+
+    const watchedAmount = watch("update_price");
+    const watchedAction = watch("priceAction");
 
     useEffect(() => {
         if (orderById) {
             reset({
                 customerName: orderById.customer,
-                paymentStatus: orderById.status_order
+                paymentStatus: orderById.status_order,
+                update_price: 0,
+                priceAction: orderById.update_price < 0 ? "minus" : "plus",
             });
         }
     }, [orderById, reset]);
 
-
     const onSubmit = (data) => {
+        const adjustment = data.priceAction === "minus"
+            ? -Number(data.update_price)
+            : Number(data.update_price);
+        localStorage.setItem("updte_price", data.update_price);
         const payload = {
             id: orderById.documentId,
             updatedData: {
                 customer: data.customerName,
-                status_order: data.paymentStatus
+                status_order: data.paymentStatus,
+                update_price: adjustment,
+                final_price: Number(orderById.final_price) + adjustment
             }
         };
-        const id = payload.id;
-
-        Swal.fire({
-            title: 'جاري حفظ التعديلات...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
         update({ id, payload }, {
             onSuccess: () => {
                 Swal.fire({
@@ -63,9 +65,7 @@ const UpdateOrderPage = () => {
                     confirmButtonText: 'حسناً',
                     confirmButtonColor: '#18181b',
                     timer: 2000
-                }).then(() => {
-                    navigate('/sales');
-                });
+                }).then(() => { navigate('/sales'); });
             },
             onError: (error) => {
                 Swal.fire({
@@ -89,7 +89,6 @@ const UpdateOrderPage = () => {
     return (
         <div className="min-h-screen bg-[#fcfcfc] p-4 md:p-8 font-arabic" dir="rtl">
             <div className="max-w-3xl mx-auto">
-
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
@@ -135,28 +134,27 @@ const UpdateOrderPage = () => {
                             <div className="grid grid-cols-1 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">اسم العميل بالكامل</label>
-                                    <div className="relative">
-                                        <input
-                                            {...register("customerName", { required: "اسم العميل مطلوب" })}
-                                            className={`w-full bg-zinc-50 border ${errors.customerName ? 'border-red-500' : 'border-zinc-100'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
-                                            placeholder="أدخل اسم العميل..."
-                                        />
-                                        {errors.customerName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerName.message}</p>}
-                                    </div>
+                                    <input
+                                        {...register("customerName", { required: "اسم العميل مطلوب" })}
+                                        className={`w-full bg-zinc-50 border ${errors.customerName ? 'border-red-500' : 'border-zinc-100'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
+                                        placeholder="أدخل اسم العميل..."
+                                    />
+                                    {errors.customerName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerName.message}</p>}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Section 2: Payment Details */}
+                        {/* Section 2: Payment & Price Adjustment */}
                         <div className="p-8 space-y-6 bg-zinc-50/30">
                             <div className="flex items-center gap-3 mb-2">
                                 <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center text-white">
                                     <CreditCard size={16} />
                                 </div>
-                                <h2 className="font-black text-zinc-800 text-lg">تفاصيل الدفع</h2>
+                                <h2 className="font-black text-zinc-800 text-lg">تفاصيل الحساب</h2>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* طريقة السداد */}
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">طريقة السداد</label>
                                     <select
@@ -168,11 +166,45 @@ const UpdateOrderPage = () => {
                                     </select>
                                 </div>
 
-                                <div className="bg-amber-500/10 p-4 rounded-2xl border border-amber-200/50 self-end">
-                                    <p className="text-[10px] text-amber-700 font-black mb-1 italic">ملاحظة الحساب:</p>
-                                    <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                                        تغيير حالة الدفع يؤثر على سجلات الخزينة والتقارير اليومية فور الحفظ.
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">تعديل القيمة (فرق سعر / خصم)</label>
+                                    <div className="flex gap-0">
+                                        <select
+                                            {...register("priceAction")}
+                                            className="bg-zinc-100 border border-zinc-100 p-4 rounded-r-2xl outline-none focus:border-amber-500 font-bold text-zinc-700 cursor-pointer"
+                                        >
+                                            <option value="plus"> زيادة</option>
+                                            <option value="minus"> خصم</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            {...register("update_price")}
+                                            className="w-full bg-white border border-zinc-100 p-4 rounded-l-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800 shadow-inner"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    {watchedAmount > 0 && (
+                                        <div className={`flex items-center gap-1 mt-2 text-[11px] font-bold ${watchedAction === 'plus' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {watchedAction === 'plus' ? <PlusCircle size={12} /> : <MinusCircle size={12} />}
+                                            {watchedAction === 'plus' ? 'سيتم إضافة القيمة لإجمالي الفاتورة' : 'سيتم خصم القيمة من إجمالي الفاتورة'}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* ملخص الحساب الصافي */}
+                            <div className="bg-zinc-900 rounded-2xl p-6 mt-4 flex items-center justify-between text-white shadow-lg shadow-zinc-200">
+                                <div>
+                                    <p className="text-zinc-400 text-[10px] font-black uppercase mb-1">الإجمالي النهائي المتوقع</p>
+                                    <p className="text-2xl font-black font-sans">
+                                        {(Number(orderById?.final_price || 0) + (watchedAction === "minus" ? -Number(watchedAmount) : Number(watchedAmount))).toLocaleString()} <span className="text-sm text-amber-500 mr-1">ج.م</span>
                                     </p>
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-zinc-400 text-[10px] font-black uppercase mb-1 text-right">الحالة الحالية</p>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black ${orderById?.status_order === 'كاش' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
+                                        {orderById?.status_order}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +216,7 @@ const UpdateOrderPage = () => {
                                 onClick={() => navigate(-1)}
                                 className="px-8 py-4 rounded-2xl text-zinc-400 font-bold hover:bg-zinc-50 transition-all"
                             >
-                                إلغاء التعديلات
+                                إلغاء
                             </button>
 
                             <motion.button
