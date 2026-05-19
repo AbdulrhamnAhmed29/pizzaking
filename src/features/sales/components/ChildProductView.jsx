@@ -15,7 +15,7 @@ const ChildProductView = ({
 
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="animate-in fade-in slide-in-from-bottom-4 bg-none duration-300">
       <div className="flex items-center justify-between mb-6 bg-zinc-900 p-5 rounded-3xl text-white">
         <div className="flex items-center gap-5 p-2">
           <button
@@ -50,7 +50,7 @@ const ChildProductView = ({
           <div
             key={child.id}
             onClick={() => addToCart(child)}
-            className={` ${child.quantity <= 0 && child.barcode === true ? "hidden" : ""} group relative p-5  rounded-[1.8rem] border border-zinc-100 shadow-sm hover:shadow-2xl hover:border-[#D4AF37]/50 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
+            className={` ${child.quantity <= 0 && child.barcode === true ? "hidden" : ""} group relative p-5  rounded-[1.8rem] border border-zinc-100 shadow-custom hover:shadow-2xl hover:border-[#D4AF37]/50 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden`}
           >
             <div className="flex justify-between items-center mb-4">
               <span className="bg-zinc-100 text-zinc-500 px-3 py-1 rounded-full text-[10px] font-bold">

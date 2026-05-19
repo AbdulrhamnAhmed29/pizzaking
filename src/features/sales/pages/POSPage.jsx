@@ -238,6 +238,7 @@ const POSPage = () => {
             ref={contentRef}
             orderData={dataToPrint.orderData}
             cart={dataToPrint.cart}
+            
           />
         </div>
       )}
