@@ -27,12 +27,26 @@ export const ReceiptDesign = React.forwardRef(({ orderData, cart }, ref) => {
 
       {/* Header - Brand Identity */}
       <div className="text-center border-b-2 border-black pb-3 mb-3">
-        <h2 className="text-2xl font-black mb-1">أولاد آل أبو الدهب</h2>
-        <p className="text-[10px] font-bold text-gray-700">لزيوت السيارات وقطع الغيار</p>
-        <div className="mt-2 text-[10px] space-y-0.5">
+        <h2 className="text-xl font-black mb-1">شركة  آل عامر أبو الدهب</h2>
+        <p className="text-[10px] font-bold text-gray-700">جميع أنواع زيوت السيارات والفلاتر</p>
+        <p className="text-[10px] font-bold text-gray-700">تغيير زيت | فلاتر | تشحيم | مغسلة سيارات</p>
+
+        <div className="mt-2 text-[9px] text-gray-600 font-medium">
           <p>الجيزة، مطار إمبابة - أول شارع الكيلاني</p>
-          <p className="font-mono">01128787885 - 01128787885</p>
         </div>
+        <div className="mt-1 py-1 border-y border-gray-100 flex justify-between items-center text-[9px]">
+          <div className="flex gap-1 items-center">
+            <span className="font-bold text-gray-900">محمد السيد :</span>
+            <span className="font-mono">01144472233</span>
+          </div>
+          <div className="w-[1px] h-3 bg-gray-300"></div>
+          <div className="flex gap-1 items-center">
+            <span className="font-bold text-gray-900">إبراهيم علي :</span>
+            <span className="font-mono">01279373024</span>
+          </div>
+        </div>
+
+
       </div>
 
       {/* Order Info */}
@@ -104,16 +118,16 @@ export const ReceiptDesign = React.forwardRef(({ orderData, cart }, ref) => {
           background="transparent"
           margin={0}
         />
-        
+
         <p className="mt-4 text-[9px] font-bold text-gray-400">شكراً لزيارتكم</p>
 
         {/* Dev Signature - Minimalist & Clean */}
         <div className="mt-4 pt-2 border-t border-gray-100 w-full flex justify-between items-center opacity-40">
-           <span className="text-[7px] tracking-[2px]">SYS V.1.0</span>
-           <div className="text-right">
-              <p className="text-[8px] font-black uppercase">Abdulrhman Ahmed</p>
-              <p className="text-[6px] text-center italic">Frontend Architect</p>
-           </div>
+          <span className="text-[7px] tracking-[2px]">SYS V.1.0</span>
+          <div className="text-right">
+            <p className="text-[8px] font-black uppercase">Abdulrhman Ahmed</p>
+            <p className="text-[6px] text-center italic">system Architect</p>
+          </div>
         </div>
       </div>
     </div>

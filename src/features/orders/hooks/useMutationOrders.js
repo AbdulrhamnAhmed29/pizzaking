@@ -10,7 +10,7 @@ export const useOrderMutation = () => {
     const queryClient = useQueryClient()
     const { data } = useGetProducts()
     const playSaleSound = () => {
-        const audio = new Audio('/sound/sell.mp3'); 
+        const audio = new Audio('/sound/sell.mp3');
         audio.play().catch(err => console.log("الصوت محتاج تفاعل أولاً"));
     };
     const mutation = useMutation({
@@ -23,6 +23,7 @@ export const useOrderMutation = () => {
                     final_price: orderData.finalPrice,
                     customer: orderData.customerName,
                     barcode: orderData.barcode
+
                 }
             });
 
@@ -69,7 +70,7 @@ export const useOrderMutation = () => {
                         order: orderDocId,
                         product: item.documentId,
                         quantityInOrder: item.quantity,
-                        buying_price:item.buying_price,
+                        buying_price: item.buying_price,
                         unit_price: item.cost_price,
                         sub_total: item.cost_price * item.quantity,
                         attribute_sets: item.attribute_sets?.[0]?.documentId
@@ -83,10 +84,21 @@ export const useOrderMutation = () => {
 
             return await Promise.all(itemPromises);
         },
-        onSuccess: () => {
-            playSaleSound()
-            queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ["ordersToReports"] });
+        onSuccess: async () => {
+            playSaleSound();
+
+            // 1. مسح الكاش تماماً عشان نضمن إن مفيش داتا قديمة تظهر
+            await queryClient.cancelQueries({ queryKey: ["products"] });
+
+            // 2. إجبار الكويري إنها تجيب الداتا فوراً من السيرفر
+            queryClient.invalidateQueries({
+                queryKey: ["products"],
+                refetchType: 'all'
+            });
+
+  
+
+            console.log("تم التحديث بنجاح بدون ريفرش للصفحة");
         },
 
     });
@@ -95,10 +107,13 @@ export const useOrderMutation = () => {
         mutationFn: ({ id, payload }) => servicesOrders.updateOrder(id, {
             data: {
                 customer: payload.updatedData.customer,
-                status_order: payload.updatedData.status_order
+                status_order: payload.updatedData.status_order,
+                update_price: payload.updatedData.update_price,
+                final_price: payload.updatedData.final_price,
             },
             onError: (error) => {
                 console.log(error);
+
             }
         })
     })

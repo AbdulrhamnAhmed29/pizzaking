@@ -21,6 +21,8 @@ function SalesOrder() {
 
 
     } = useOrders();
+    console.log(orders);
+    
 
 
     const totalSales = orders?.reduce((acc, order) => acc + (order.final_price || 0), 0) || 0;

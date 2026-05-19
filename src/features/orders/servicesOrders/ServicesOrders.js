@@ -68,7 +68,8 @@ export const servicesOrders = {
             },
             sort: ['createdAt:desc'],
             pagination: {
-                limit: 2000,
+                page: 1,      
+                pageSize: 20  
             },
         }, { encodeValuesOnly: true });
 
