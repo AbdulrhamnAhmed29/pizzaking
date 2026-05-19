@@ -5,9 +5,11 @@ import {
 import { Wallet, Zap, Package } from 'lucide-react';
 import { useStatistcs } from '../hooks/useStatistics';
 import { motion, animate } from 'framer-motion';
+import { ORDER_STATUS } from '../../../constants/orderStatus';
 
 const AnimatedNumber = ({ value }) => {
     const [displayValue, setDisplayValue] = useState(0);
+
 
     useEffect(() => {
         const controls = animate(0, value, {
@@ -33,6 +35,17 @@ const Statistics = () => {
 
 
 
+
+    // _______________________________________________
+
+    //  Paid orders data 
+
+
+
+
+
+
+
     const totalOrdersCount = reportsOrders?.length || 0;
     const TotalOrdersPrices = useMemo(() => {
         return reportsOrders?.reduce((acc, curr) => acc + Number(curr.final_price || 0), 0) || 0;
@@ -46,9 +59,25 @@ const Statistics = () => {
         }, 0) || 0;
     }, [ReportsExpesnse]);
 
-    const sales = TotalOrdersPrices;
-    const cashInDrawer = useMemo(() => TotalOrdersPrices - TotalDailyExpenses, [TotalOrdersPrices, TotalDailyExpenses]);
 
+
+
+    //    unPaid orders data 
+    const unPaidOrders = reportsOrders?.filter((order) => {
+        return order.status_order === ORDER_STATUS.CREDIT;
+    });
+    const unPaidOrdersCount = unPaidOrders?.length;
+    const unPaidOrdersPrice = useMemo(() => {
+        const totalPrice = unPaidOrders?.reduce((acc, curr) => {
+            const Price = Number(curr.final_price);
+            return acc + Price
+        }, 0)
+        return totalPrice
+    });
+    const sales = TotalOrdersPrices;
+    const cashInDrawer = useMemo(() => {
+        return Number(TotalOrdersPrices) - (Number(TotalDailyExpenses) + Number(unPaidOrdersPrice));
+    }, [TotalOrdersPrices, TotalDailyExpenses, unPaidOrdersPrice]);
     // best sellers 
     const topSellingProducts = useMemo(() => {
         if (!reportsOrders || reportsOrders.length === 0) return [];
@@ -79,6 +108,8 @@ const Statistics = () => {
             .sort((a, b) => b.totalQty - a.totalQty)
             .slice(0, 5);
     }, [reportsOrders]);
+    console.log(unPaidOrdersCount);
+    const paiedOrders = Number(totalOrdersCount) - Number(unPaidOrdersCount);
 
 
 
@@ -130,9 +161,17 @@ const Statistics = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 {[
                     { label: 'المبيعات', value: sales, icon: Zap, color: '#D4AF37' },
-                    { label: '(الخوارج)المصاريف', value: TotalExpenses, icon: Wallet, color: '#ef4444' },
+                    { label: '(الخوارج)المصاريف', value: TotalExpenses, icon: Wallet, color: '#D4AF37' },
+                    { label: 'الاجل', value: unPaidOrdersPrice, icon: Wallet, color: '#D4AF37' },
+
+
                     { label: '  خزنة الكاشير (الدرج)', value: cashInDrawer, icon: Zap, color: '#D4AF37' },
-                    { label: 'عدد الاوردرات', value: totalOrdersCount, icon: Package, color: '#6366f1', isUnit: false },
+                    // { label: 'الاوردرات الاجل', value: unPaidOrdersPrice, icon: Wallet, color: '#D4AF37' },
+                    { label: 'عدد الاوردرات', value: totalOrdersCount, icon: Package, color: '#D4AF37', isUnit: false },
+                    { label: 'عدد الاوردرات الكاش', value: paiedOrders, icon: Package, color: '#D4AF37', isUnit: false },
+
+                    { label: 'عدد الاوردرات الاجل', value: unPaidOrdersCount, icon: Package, color: '#D4AF37', isUnit: false },
+
                 ].map((card, i) => (
                     <motion.div
                         key={i}
@@ -159,7 +198,7 @@ const Statistics = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          
+
                 {/* sales diagram */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -205,8 +244,15 @@ const Statistics = () => {
                                         textAlign: 'right',
                                         fontFamily: 'inherit'
                                     }}
-                                    formatter={(value) => [`${value} قطعة`, 'إجمالي الكمية']}
-                                />
+                                    formatter={(value, name) => {
+                                        if (name === "total_profit" || name === "profit") {
+                                            return [`${value.toLocaleString('ar-EG')} ج.م`, "إجمالي الربح"];
+                                        }
+                                        if (name === "total_quantity" || name === "quantity") {
+                                            return [`${value} قطعة`, "إجمالي الكمية"];
+                                        }
+                                        return [value, name];
+                                    }} />
                                 <Bar
                                     dataKey="totalQty"
                                     fill="url(#barGold)"
