@@ -22,6 +22,13 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
     }, [Products, targetId]);
     //3- intilaization react hook form 
     // __________________________________
+
+    const clearData = () => {
+
+        localStorage.removeItem("cart");
+
+    };
+
     const { register, handleSubmit, reset, control } = useForm({
         defaultValues: {
             name: '',
@@ -60,7 +67,7 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
     // 4- send data to server 
     // __________________________________
     const onsubmit = (data) => {
-        console.log(data);
+        clearData()
         const sendData = update({
             id: targetId,
             payload: data

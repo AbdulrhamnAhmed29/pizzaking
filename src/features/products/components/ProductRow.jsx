@@ -5,13 +5,13 @@ export const ProductRow = ({ product, cost_price, buying_price, activeType, onEd
   const lowStock = product.quantity < 22 && product.quantity !== null;
   const isLoose = product.attribute_sets?.[0]?.name === "سايب";
   const isServices = product.quantity === 0;
-  const is_Services = product.bulk_quantity === 0;
 
   const isBarcode = product.barcode;
 
   const isParent = product.parent_id === null;
 
-  const netprot = cost_price - buying_price;
+  const total_profit = cost_price - buying_price;
+  
 
 
 
@@ -48,7 +48,7 @@ export const ProductRow = ({ product, cost_price, buying_price, activeType, onEd
         <span className={` ${isServices ? "hidden" : ""} text-["10px"] font-black`}></span>
         <span className="text-[15px] ms-1 font-black uppercase tracking-tighter">
           {product.attribute_sets?.[0]?.name || ""}
-          { }
+          
         </span>
       </td>
       {/* sales prices */}
@@ -78,7 +78,7 @@ export const ProductRow = ({ product, cost_price, buying_price, activeType, onEd
       <td className="px-6 py-5">
         <div className={` flex flex-col gap-0.5`}>
           <div className={`text-sm font-black text-zinc-900 flex items-center gap-1 ${isParent ? "hidden" : ""}`}>
-            {netprot}
+            {total_profit}
             <span className="text-[#D4AF37] text-xs">جنية</span>
           </div>
         </div>
