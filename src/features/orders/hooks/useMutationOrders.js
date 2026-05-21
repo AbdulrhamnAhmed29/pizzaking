@@ -2,10 +2,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { servicesOrders } from '../servicesOrders/ServicesOrders';
 import { useGetProducts } from "../../products/hooks/UseGetProducts"
 import productService from '../../products/services/Services';
-
-
-
-
+import { ORDER_STATUS } from '../../../constants/orderStatus';
 export const useOrderMutation = () => {
     const queryClient = useQueryClient()
     const { data } = useGetProducts()
@@ -15,41 +12,39 @@ export const useOrderMutation = () => {
     };
     const mutation = useMutation({
         mutationFn: async ({ orderData, cart }) => {
+            const customerResponse = await servicesOrders.createCustomer({
+                data: {
+                    name: orderData.customerName.trim(),
+                    phone: orderData.customerPhone,
+                }
+            });
+            const customerId = customerResponse?.documentId;
             const orderResponse = await servicesOrders.createOrder({
                 data: {
+                    customers: customerId,
                     total_price: orderData.totalPrice,
                     status_order: orderData.paymentStatus,
                     discount: orderData.discount,
                     final_price: orderData.finalPrice,
-                    customer: orderData.customerName,
-                    barcode: orderData.barcode
-
+                    barcode: orderData.barcode,
+                    paid_amount: orderData.paymentStatus === ORDER_STATUS.CASH ? orderData.finalPrice : orderData.paid_amount,
                 }
             });
-
             const orderDocId = orderResponse?.documentId;
-
-
-
-
             const itemPromises = cart.map(async (item) => {
                 // 1. cart product
                 const originalProduct = data.find(p => p.documentId === item.documentId);
                 let updatePayload = {};
                 let targetDocId = item.documentId;
-
-                const is_bulk = item.attribute_sets?.[0]?.name === "سايب";
+                const is_bulk = item.attribute_sets?.[0]?.name === ORDER_STATUS.CREDIT;
                 if (is_bulk) {
                     // if bulk parent discount 
                     const parentProductDocId = originalProduct?.parent_id;
                     const parentProduct = data.find((p) => p.documentId === parentProductDocId);
-
                     if (parentProduct) {
                         const currentStockInBulk = Number(parentProduct.bulk_quantity || 0);
                         // factor * quantity 
-
                         const conversionFactor = Number(item.attributes?.[0]?.conversion_factor || 1);
-
                         const itemStockFactor = conversionFactor * Number(item.quantity);
                         const finalStockInBulk = currentStockInBulk - itemStockFactor;
                         updatePayload = { bulk_quantity: finalStockInBulk };
@@ -60,10 +55,8 @@ export const useOrderMutation = () => {
                     const currentStock = Number(originalProduct?.quantity || 0);
                     const itemStockInOrder = Number(item.quantity);
                     const finalStock = currentStock - itemStockInOrder;
-
                     updatePayload = { quantity: finalStock };
                 }
-
                 // 2.Order Item Payload
                 const orderItemsPayload = {
                     data: {
@@ -73,7 +66,8 @@ export const useOrderMutation = () => {
                         buying_price: item.buying_price,
                         unit_price: item.cost_price,
                         sub_total: item.cost_price * item.quantity,
-                        attribute_sets: item.attribute_sets?.[0]?.documentId
+                        attribute_sets: item.attribute_sets?.[0]?.documentId,
+                        product_type:item.attributes?.[0].name
                     }
                 };
                 return Promise.all([
@@ -81,43 +75,31 @@ export const useOrderMutation = () => {
                     productService.updateProduct(targetDocId, { data: updatePayload })
                 ]);
             });
-
             return await Promise.all(itemPromises);
         },
         onSuccess: async () => {
             playSaleSound();
-
-            // 1. مسح الكاش تماماً عشان نضمن إن مفيش داتا قديمة تظهر
             await queryClient.cancelQueries({ queryKey: ["products"] });
-
-            // 2. إجبار الكويري إنها تجيب الداتا فوراً من السيرفر
             queryClient.invalidateQueries({
                 queryKey: ["products"],
                 refetchType: 'all'
             });
-
-  
-
             console.log("تم التحديث بنجاح بدون ريفرش للصفحة");
         },
-
     });
-
     const updateMutation = useMutation({
         mutationFn: ({ id, payload }) => servicesOrders.updateOrder(id, {
             data: {
-                customer: payload.updatedData.customer,
                 status_order: payload.updatedData.status_order,
                 update_price: payload.updatedData.update_price,
                 final_price: payload.updatedData.final_price,
+                paid_amount: payload.updatedData.paid_amount
             },
             onError: (error) => {
                 console.log(error);
-
             }
         })
     })
-
     const removeMutation = useMutation({
         mutationFn: (id) => servicesOrders.deleteOrder(id),
         onSuccess: () => {

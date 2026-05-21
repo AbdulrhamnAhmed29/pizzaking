@@ -1,5 +1,6 @@
 import { lazy } from 'react'
-import MainLayout from './layout/MainLayout'
+import { Navigate } from 'react-router-dom';
+const mainLayout = lazy(() => import('./layout/MainLayout'));
 const SignIn = lazy(() => import('./features/auth/components/SignIn'));
 const Products = lazy(() => import('./features/products/pages/ProductsPage'));
 const AddProducts = lazy(() => import('./features/products/pages/AddProducts'));
@@ -13,25 +14,9 @@ const expenses = lazy(() => import('./features/expenses/expensesPage/ExpensesPag
 const addexpense = lazy(() => import('./features/expenses/expensesPage/AddExpenses'));
 const UpdateExpenses = lazy(() => import('./features/expenses/expensesPage/UpdateExpenses'));
 const Statistics = lazy(() => import('./features/statistics/page/Statistics'));
-
-
-
-
-
-
-
-
 const NotFoundPage = lazy(() => import('./ui/NotFoundPage'));
-
-
-
-
-
-
-// مثال
-
-
 export const routes = [
+
     {
         path: '/login',
         element: SignIn,
@@ -39,12 +24,17 @@ export const routes = [
     },
     {
         path: '/',
-        element: MainLayout,
+        element: mainLayout,
         isPublic: false,
         children: [
             {
+                path: '/',
+                element: Statistics,
+            },
+
+            {
                 path: 'dashboard',
-                element:Statistics,
+                element: Statistics,
             },
             {
                 path: 'products',
@@ -93,18 +83,6 @@ export const routes = [
                 path: 'update-product/:id',
                 element: updateProducts,
             },
-
-
-
-
-
-
-
-
-
-
-
-
         ]
     },
     {

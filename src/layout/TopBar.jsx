@@ -102,7 +102,7 @@ const TopBar = ({ isCollapsed }) => {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
                                                         <p className="text-sm font-bold text-zinc-900 line-clamp-1 group-hover:text-red-600 transition-colors">
-                                                            {p.name}
+                                                            {p.name} ({p.attributes?.[0]?.name})
                                                         </p>
                                                         <span className="text-[10px] font-medium text-zinc-8    00 uppercase tracking-wider">
                                                             {p.parent_id === null ? " سائب" : " قطع"}

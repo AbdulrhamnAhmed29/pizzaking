@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-
+import {ORDER_STATUS}  from "../../../constants/orderStatus"
 const backdropVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
 };
+
 
 const modalVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 20 },
@@ -18,6 +19,8 @@ const modalVariants = {
 };
 
 export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoading, setCart }) => {
+
+    
     const {
         register,
         handleSubmit,
@@ -28,14 +31,13 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
         defaultValues: {
             customerName: "عميل نقدي",
             paymentStatus: "كاش",
+            customerPhone: "",
             discount: 0,
+            paid: 0,
         }
     });
-
     const discountValue = watch("discount", 0);
-    
     const finalPrice = totalAmount - (Number(discountValue) || 0);
-
     const onSubmit = (data) => {
         const finalFData = {
             ...data,
@@ -44,6 +46,8 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
             barcode: `INV-${Date.now().toString().slice(-6)}`
         };
         onConfirm(finalFData);
+        console.log(finalFData);
+        
         reset();
     };
 
@@ -92,6 +96,16 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                 />
                                 {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
                             </div>
+                            {/* Customer phone */}
+                            <div>
+                                <label className="block text-sm mb-1.5 font-semibold text-zinc-700">رقم العميل</label>
+                                <input
+                                    {...register("customerPhone")}
+                                    autoFocus
+                                    className="w-full border border-zinc-300 p-2.5 rounded-xl outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
+                                />
+                                {errors.customerPhone && <p className="text-red-500 text-xs mt-1">{errors.customerPhone.message}</p>}
+                            </div>
 
                             <div className="flex gap-4">
                                 {/* Discount */}
@@ -104,6 +118,9 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                     />
                                 </div>
 
+                                {
+
+                                }
                                 {/* Payment Status */}
                                 <div className="flex-1">
                                     <label className="block text-sm mb-1.5 font-semibold text-zinc-700">طريقة الدفع</label>
@@ -111,8 +128,8 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                         {...register("paymentStatus")}
                                         className="w-full border border-zinc-300 p-2.5 rounded-xl outline-none bg-white focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all appearance-none"
                                     >
-                                        <option value="كاش">كاش</option>
-                                        <option value="آجل">آجل</option>
+                                        <option value={ORDER_STATUS.CASH}>كاش</option>
+                                        <option value={ORDER_STATUS.CREDIT}>آجل</option>
                                     </select>
                                 </div>
                             </div>

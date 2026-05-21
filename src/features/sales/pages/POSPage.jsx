@@ -134,17 +134,31 @@ const POSPage = () => {
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + (Number(i.cost_price) * i.quantity), 0), [cart]);
 
-  // --- Callbacks ---
-  const addToCart = useCallback((product) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.documentId === product.documentId);
-      if (existing) return prev.map(item => item.documentId === product.documentId ? { ...item, quantity: item.quantity + 1 } : item);
-      setToast({ show: true, message: `تم إضافة ${product.name} للسلة` });
-      return [...prev, { ...product, quantity: 1 }];
-    });
+const addToCart = useCallback((product) => {
+  setCart(prev => {
+    // 1. شوف المنتج ده موجود في السلة بكام حالياً؟
+    const existing = prev.find(item => item.documentId === product.documentId);
+    const currentQtyInCart = existing ? existing.quantity : 0;
 
-    setSearchTerm('');
-  }, []);
+    // 2. شرط الأمان: هل الكمية اللي في السلة + 1 أكبر من اللي موجود في المخزن؟
+    if (currentQtyInCart + 1 > product.quantity) {
+      setToast({ show: true, message: `عفواً، لا يوجد رصيد كافٍ من ${product.name} (المتوفر: ${product.quantity})`, type: 'error' });
+      return prev; // رجع السلة زي ما هي بدون إضافات
+    }
+
+    // 3. لو الشرط تمام، كمل عملية الإضافة العادية
+    if (existing) {
+      return prev.map(item => 
+        item.documentId === product.documentId 
+          ? { ...item, quantity: item.quantity + 1 } 
+          : item
+      );
+    }
+
+    setToast({ show: true, message: `تم إضافة ${product.name} للسلة` });
+    return [...prev, { ...product, quantity: 1 }];
+  });
+}, []);
 
   const scannedProduct = useMemo(() => {
     if (!searchTerm || !allProducts) return null;

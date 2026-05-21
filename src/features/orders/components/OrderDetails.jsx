@@ -128,10 +128,17 @@ function OrderDetails() {
                             ""
                         }
 
+
                         {order.discount > 0 && (
                             <div className="flex justify-between text-[11px] text-red-600 font-bold">
                                 <span>الخصم (-):</span>
                                 <span>-{(order.discount || 0).toLocaleString('ar-EG')} ج.م</span>
+                            </div>
+                        )}
+                        {order.paid_amount > 0 && (
+                            <div className="flex justify-between text-[11px] text-red-600 font-bold">
+                                <span>المدفوع مسبقا (-):</span>
+                                <span>-{(order.paid_amount || 0).toLocaleString('ar-EG')} ج.م</span>
                             </div>
                         )}
                     </div>

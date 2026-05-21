@@ -2,23 +2,21 @@ import React from 'react'
 import { AlertTriangle, Package, Droplets, } from 'lucide-react'
 import { useNotifications } from '../../../shared/context/NotificationContext'
 import { ReceiptText, } from 'lucide-react';
-
-
 const RestockPage = () => {
     const { lowStockProducts } = useNotifications();
-
+    console.log(lowStockProducts);
+    
     return (
         <div className="min-h-screen w-full pt-8 pb-20 px-4 lg:px-8 font-sans" dir="rtl">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-
                 <div>
                     <h1 className="text-3xl font-black text-zinc-900 flex items-center gap-3">
                         <ReceiptText className="text-[#D4AF37]" size={32} />
                         قائمة <span className="text-[#D4AF37] font-outline-2">(النواقص)</span>
                     </h1>
-                    <p className="text-zinc-400 font-bold text-sm mr-6">متابعة دقيقة للمنتجات التي شارفت على النفاذ</p>                </div>
-
+                    <p className="text-zinc-400 font-bold text-sm mr-6">متابعة دقيقة للمنتجات التي شارفت على النفاذ</p>
+                </div>
                 {/* Counter Card */}
                 <div className="bg-white border border-zinc-100 shadow-xl shadow-red-500/5 rounded-[2rem] px-8 py-5 flex items-center gap-5 transition-transform hover:scale-[1.02]">
                     <div className="bg-red-50 p-3 rounded-2xl">
@@ -30,7 +28,6 @@ const RestockPage = () => {
                     </div>
                 </div>
             </div>
-
             {lowStockProducts.length === 0 ? (
                 /* Empty State Premium View */
                 <div className="flex flex-col items-center shadow-custom justify-center py-32 bg-white rounded-[3rem] border border-zinc-50 ">
@@ -55,7 +52,7 @@ const RestockPage = () => {
                             <div className="p-8 pb-4">
                                 <div className="flex justify-between items-start mb-4">
                                     <span className="text-[9px] bg-zinc-900 text-[#D4AF37] px-4 py-1.5 rounded-full font-black uppercase tracking-widest">
-                                        {product.category?.name || 'صنف عام'}
+                                        {product.attributes?.[0]?.name || 'صنف عام'}
                                     </span>
                                     <div className="text-red-500 bg-red-50 p-2 rounded-xl">
                                         <Droplets size={18} />
