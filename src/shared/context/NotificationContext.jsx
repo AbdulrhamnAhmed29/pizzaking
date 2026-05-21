@@ -4,8 +4,9 @@ import { useGetProducts } from '../../features/products/hooks/UseGetProducts'
 export const NotificationContext = createContext()
 
 export const NotificationProvider = ({ children }) => {
-  const { data: products } = useGetProducts()
+  const { data: product } = useGetProducts()
   
+  const products = product.data
   const prevCountRef = useRef(0);
 
   const lowStockProducts = useMemo(() => {

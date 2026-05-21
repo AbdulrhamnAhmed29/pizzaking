@@ -1,10 +1,6 @@
 import { useMemo } from "react";
 import { ProductRow } from "./ProductRow";
-import { LoadingState } from "../../../ui/LoadingState";
-import EmptyState from "../../../ui/EmptyState";
-
-export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd }) => {
-
+export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd, setSearchTerm, searchTerm, productsMeta,  }) => {
   // netproft 
   const netproft = useMemo(() => {
     if (!products || products.length === 0) return 0;
@@ -13,16 +9,13 @@ export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd }) 
     return costPrice - buyPrice;
   }, [products]);
   console.log(netproft);
-
-
-
   const sortedProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
-    const parents = products.filter(p => !p.parent_id);
+    const parents = products?.filter(p => !p.parent_id);
     const finalList = [];
     parents.forEach(parent => {
       finalList.push({ ...parent, isParent: true });
-      const children = products.filter(child => {
+      const children = products?.filter(child => {
         if (!child.parent_id) return false;
         const childParentRef = child.parent_id?.documentId || child.parent_id;
         const parentDocId = parent.documentId;
@@ -34,10 +27,6 @@ export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd }) 
     });
     return finalList;
   }, [products]);
-
-  //  loading 
-  if (isLoading) return <LoadingState />;
-  if (!products?.length) return <EmptyState onAdd={onAdd} />;
   return (
     <div className="w-full space-y-6 ">
       {/* search button  */}
@@ -56,6 +45,8 @@ export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd }) 
         <input
           type="text"
           placeholder="ابحث عن منتجك ..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           dir="rtl"
           className="block w-full pr-11 pl-4 py-3.5 bg-white border border-gray-200 
                text-gray-900 text-sm rounded-2xl shadow-sm
@@ -95,6 +86,7 @@ export const ProductsTable = ({ products, isLoading, onEdit, onDelete, onAdd }) 
         </div>
 
       </div>
+  
     </div>
   );
 };

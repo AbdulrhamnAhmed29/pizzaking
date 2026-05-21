@@ -8,13 +8,9 @@ const MainLayout = () => {
 
   return (
     <div className="flex bg-[#F8F9FA] min-h-screen font-sans selection:bg-[#D4AF37]/30">
-      {/* السايد بار يحتاج الحالة ليتحكم في عرضه */}
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-500 ease-in-out">
-        {/* التوب بار يحتاج الحالة ليتحكم في إزاحته من اليمين */}
-        <TopBar isCollapsed={isCollapsed} />
-        
+        <TopBar isCollapsed={isCollapsed} />      
         <main 
             className={`
                 flex-1 pt-24 pb-8 transition-all duration-500 ease-in-out

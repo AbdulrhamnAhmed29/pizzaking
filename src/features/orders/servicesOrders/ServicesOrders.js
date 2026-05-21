@@ -6,25 +6,27 @@ export const servicesOrders = {
         const { data } = await BaseApi.create("/orders", payload);
         return data
     },
-
-    getOrders: async (searchTerm, status, selectedDate) => {
+    getOrders: async (searchTerm, status, selectedDate, page) => {
         const filters = { $and: [] };
-
         // 1. search filter 
         if (searchTerm && searchTerm.trim() !== "") {
             filters.$and.push({
                 $or: [
-                    { customer: { $contains: searchTerm } },
-                    { barcode: { $contains: searchTerm } }
+                    {
+                        customers: {
+                            name: { $contains: searchTerm }
+                        }
+                    },
+                    {
+                        barcode: { $contains: searchTerm }
+                    }
                 ]
             });
         }
-
         // 2. status filter 
         if (status && status !== "الكل") {
             filters.$and.push({ status_order: { $eq: status } });
         }
-
         if (selectedDate) {
 
             filters.$and.push({
@@ -34,22 +36,27 @@ export const servicesOrders = {
                 }
             });
         }
-
+        const pageSize = selectedDate ? 1000 : 30;
         const query = qs.stringify({
             filters: filters.$and.length > 0 ? filters : {},
             populate: '*',
             sort: ['createdAt:desc'],
             pagination: {
-                limit: 2000,
+                page: page,
+                pageSize: pageSize
             },
         }, { encodeValuesOnly: true });
-
-        const { data } = await BaseApi.getAll(`/orders?${query}`);
-        return data;
+        const res = await BaseApi.getAll(`/orders?${query}`);
+        return {
+            data: res.data,
+            meta: res.meta,
+        };
     },
     getOrdersToReports: async (startDay, endDay) => {
-        const filters = { $and: [] };
-
+        const filters =
+        {
+            $and: []
+        };
         if (startDay && endDay) {
             filters.$and.push({
                 createdAt: {
@@ -68,8 +75,8 @@ export const servicesOrders = {
             },
             sort: ['createdAt:desc'],
             pagination: {
-                page: 1,      
-                pageSize: 20  
+                page: 1,
+                pageSize: 3000
             },
         }, { encodeValuesOnly: true });
 
@@ -79,9 +86,7 @@ export const servicesOrders = {
         return data;
     },
     getOrderById: async (id) => {
-
-        const query = "populate[order_items][populate][product][populate]=*";
-
+        const query = "populate[0]=customers&populate[1]=order_items.product";
         const { data } = await BaseApi.getById("/orders", id, query);
         return data;
     },
@@ -93,6 +98,12 @@ export const servicesOrders = {
     deleteOrder: async (id) => {
         const res = await BaseApi.remove("orders", id);
         return res
+    },
+
+    // customer 
+    createCustomer: async (payload) => {
+        const { data } = await BaseApi.create("/customers", payload);
+        return data;
     },
 
     // order items 

@@ -6,13 +6,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useOrders } from "../hooks/useGetOrders";
 import { ArrowRight, Save, User, CreditCard, Hash, PlusCircle, MinusCircle } from "lucide-react";
 import Swal from 'sweetalert2';
+import { ORDER_STATUS } from "../../../constants/orderStatus";
 
 const UpdateOrderPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { update } = useOrderMutation();
     const { orderById, isLoading } = useOrders(id);
-
     const {
         register,
         handleSubmit,
@@ -24,38 +24,66 @@ const UpdateOrderPage = () => {
             customerName: "",
             paymentStatus: "",
             update_price: 0,
-            priceAction: "plus"
+            priceAction: "plus",
+            customerPhone: "",
+            paid: 0,
         }
     });
 
     const watchedAmount = watch("update_price");
     const watchedAction = watch("priceAction");
+    const watched = watch("paid");
+    const watchStatus = watch("paymentStatus");
+    console.log(watchStatus);
+
+
+
+
 
     useEffect(() => {
         if (orderById) {
             reset({
-                customerName: orderById.customer,
+                customerName: orderById.customers?.name,
+                customerPhone: orderById.customers?.phone,
                 paymentStatus: orderById.status_order,
                 update_price: 0,
                 priceAction: orderById.update_price < 0 ? "minus" : "plus",
+                paid_amount: orderById.paid_amount,
             });
         }
     }, [orderById, reset]);
+
+    const isPartiallyPaid = watchStatus === ORDER_STATUS.PARTIALLY_PAID;
+
 
     const onSubmit = (data) => {
         const adjustment = data.priceAction === "minus"
             ? -Number(data.update_price)
             : Number(data.update_price);
-        localStorage.setItem("updte_price", data.update_price);
+
+        const newFinalPrice = Number(orderById.final_price || 0) + adjustment;
+
+        const finalPaidAmount = watchStatus === ORDER_STATUS.CASH ? newFinalPrice : Number(data.paid || 0);
+
+        if (finalPaidAmount > newFinalPrice) {
+            Swal.fire({ icon: 'error', title: 'خطأ!', text: `المبلغ المدفوع (${finalPaidAmount}) لا يمكن أن يكون أكبر من الإجمالي (${newFinalPrice})`, confirmButtonColor: '#ef4444' });
+            return;
+        }
+        if (newFinalPrice < 0 || finalPaidAmount < 0) {
+            Swal.fire({ icon: 'error', title: 'خطأ!', text: 'لا يمكن أن تكون القيم أو المدفوعات بالسالب', confirmButtonColor: '#ef4444' });
+            return;
+        }
         const payload = {
             id: orderById.documentId,
             updatedData: {
-                customer: data.customerName,
                 status_order: data.paymentStatus,
                 update_price: adjustment,
-                final_price: Number(orderById.final_price) + adjustment
+                final_price: Number(orderById.final_price) + adjustment,
+                paid_amount: watchStatus === ORDER_STATUS.CASH ? Number(orderById.final_price) + adjustment : data.paid,
             }
         };
+
+        console.log(payload);
         update({ id, payload }, {
             onSuccess: () => {
                 Swal.fire({
@@ -136,10 +164,21 @@ const UpdateOrderPage = () => {
                                     <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">اسم العميل بالكامل</label>
                                     <input
                                         {...register("customerName", { required: "اسم العميل مطلوب" })}
-                                        className={`w-full bg-zinc-50 border ${errors.customerName ? 'border-red-500' : 'border-zinc-100'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
+                                        className={`w-full bg-zinc-50 border ${errors.customerName ? 'border-red-500' : 'border-zinc-400'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
                                         placeholder="أدخل اسم العميل..."
                                     />
                                     {errors.customerName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerName.message}</p>}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">رقم العميل </label>
+                                    <input
+                                        {...register("customerPhone",)}
+                                        className={`w-full bg-zinc-50 border ${errors.customerPhone ? 'border-red-500' : 'border-zinc-400'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
+                                        placeholder="أدخل رقم العميل..."
+                                    />
+                                    {errors.customerPhone && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerPhone.message}</p>}
                                 </div>
                             </div>
                         </div>
@@ -154,32 +193,33 @@ const UpdateOrderPage = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {/* طريقة السداد */}
+                                {/*  payment */}
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">طريقة السداد</label>
                                     <select
                                         {...register("paymentStatus", { required: "طريقة الدفع مطلوبة" })}
-                                        className="w-full bg-white border border-zinc-100 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800 appearance-none cursor-pointer"
+                                        className="w-full bg-white border border-zinc-400 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800 appearance-none cursor-pointer"
                                     >
-                                        <option value="كاش">دفع نقدي (كاش)</option>
-                                        <option value="آجل">دفع آجل (مديونية)</option>
+                                        <option value={ORDER_STATUS.CASH}>كاش</option>
+                                        <option value={ORDER_STATUS.CREDIT}> آجل</option>
+                                        <option value={ORDER_STATUS.PARTIALLY_PAID}> دفع جزئي</option>
+
                                     </select>
                                 </div>
-
                                 <div className="space-y-2">
                                     <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">تعديل القيمة (فرق سعر / خصم)</label>
                                     <div className="flex gap-0">
                                         <select
                                             {...register("priceAction")}
-                                            className="bg-zinc-100 border border-zinc-100 p-4 rounded-r-2xl outline-none focus:border-amber-500 font-bold text-zinc-700 cursor-pointer"
+                                            className="bg-zinc-100 border border-zinc-400 p-4 rounded-r-2xl outline-none focus:border-amber-500 font-bold text-zinc-700 cursor-pointer"
                                         >
                                             <option value="plus"> زيادة</option>
-                                            <option value="minus"> خصم</option>
+                                            <option value="minus">خصم</option>
                                         </select>
                                         <input
                                             type="number"
                                             {...register("update_price")}
-                                            className="w-full bg-white border border-zinc-100 p-4 rounded-l-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800 shadow-inner"
+                                            className="w-full bg-white border border-zinc-400 p-4 rounded-l-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800 shadow-inner"
                                             placeholder="0.00"
                                         />
                                     </div>
@@ -190,6 +230,19 @@ const UpdateOrderPage = () => {
                                         </div>
                                     )}
                                 </div>
+                                <div className={`grid grid-cols-1  gap-6 ${isPartiallyPaid ? "" : "hidden"}`}>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">المدفوعات</label>
+                                        <input
+                                            {...register("paid",)}
+                                            className={`w-full bg-zinc-50 border ${errors.paid ? 'border-red-500' : 'border-zinc-400'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
+                                            placeholder="أدخل المبلغ المدفوع..."
+
+                                        />
+                                        {errors.paid && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.paid.message}</p>}
+                                    </div>
+                                </div>
+
                             </div>
 
                             {/* ملخص الحساب الصافي */}
@@ -197,8 +250,12 @@ const UpdateOrderPage = () => {
                                 <div>
                                     <p className="text-zinc-400 text-[10px] font-black uppercase mb-1">الإجمالي النهائي المتوقع</p>
                                     <p className="text-2xl font-black font-sans">
-                                        {(Number(orderById?.final_price || 0) + (watchedAction === "minus" ? -Number(watchedAmount) : Number(watchedAmount))).toLocaleString()} <span className="text-sm text-amber-500 mr-1">ج.م</span>
-                                    </p>
+                                        {(
+                                            Number(orderById?.final_price || 0) -
+                                            Number(watched || 0) +
+                                            (watchedAction === "minus" ? -Number(watchedAmount || 0) : Number(watchedAmount || 0))
+                                        ).toLocaleString()}
+                                        <span className="text-sm text-amber-500 mr-1">ج.م</span>                                </p>
                                 </div>
                                 <div className="text-left">
                                     <p className="text-zinc-400 text-[10px] font-black uppercase mb-1 text-right">الحالة الحالية</p>

@@ -5,20 +5,21 @@ import { ProductsTable } from '../components/ProductsTable';
 import { Plus } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
-import { Boxes } from 'lucide-react'; 
-
-
+import { Boxes } from 'lucide-react';
 const ProductsPage = () => {
-  const { data: products, isLoading } = useGetProducts();
+  const {
+    data: products,
+    isLoading,
+    setSearchTerm,
+    searchTerm,
+    page,
+    setPage
+  }
+    =
+    useGetProducts();
   const { deleteMutation } = useMutationProduct();
-
-
-  const productsList = products || [];
-
-
-
-
-  // إعدادات SweetAlert الموحدة
+  const productsList = products.data || [];
+  const productsMeta = products.meta || [];
   const premiumSwal = Swal.mixin({
     customClass: {
       confirmButton: 'bg-[#D4AF37] text-black px-8 py-2 rounded-xl font-black mx-2 shadow-lg shadow-[#D4AF37]/20',
@@ -28,11 +29,6 @@ const ProductsPage = () => {
     },
     buttonsStyling: false,
   });
-
-
-
-
-
   const handleDelete = (productId) => {
     premiumSwal.fire({
       title: 'هل أنت متأكد من الحذف؟',
@@ -54,8 +50,6 @@ const ProductsPage = () => {
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-
-
         <div>
           <h1 className="text-3xl font-black text-zinc-900 flex items-center gap-3">
             <Boxes className="text-[#D4AF37]" size={32} />
@@ -66,7 +60,6 @@ const ProductsPage = () => {
             رقابة ذكية على حركة الوارد والمنصرف وتتبع الكميات
           </p>
         </div>
-
         <button>
           <Link
             to={"/add-products"}
@@ -77,8 +70,6 @@ const ProductsPage = () => {
           </Link>
         </button>
       </div>
-
-
       {/* Table Section */}
       <div className="  overflow-hidden">
         <div className="overflow-x-auto w-full">
@@ -86,10 +77,14 @@ const ProductsPage = () => {
             products={productsList}
             isLoading={isLoading}
             onDelete={handleDelete}
+            setSearchTerm={setSearchTerm}
+            searchTerm={searchTerm}
+            setPage={setPage}
+            page={page}
+            productsMeta={productsMeta}
           />
         </div>
       </div>
-
       {/* Branding Footer */}
       <div className="py-10 flex flex-col items-center gap-2 opacity-40">
         <div className="flex items-center gap-2">
