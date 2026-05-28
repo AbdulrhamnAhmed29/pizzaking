@@ -3,7 +3,7 @@
 
 ---
 
-## 📌 Overview
+## 🌐 Overview
 **Oil Management System** is a modern, offline-first Point of Sale (POS) and Inventory Management platform engineered specifically for automotive oil shops, lubrication centers, and vehicle maintenance businesses.
 
 The system combines high-performance operational workflows, financial tracking, and warehouse management into a unified desktop-focused experience optimized for real-world daily usage.
