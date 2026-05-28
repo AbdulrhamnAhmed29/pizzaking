@@ -1,70 +1,91 @@
-# Getting Started with Create React App
+# Oil Management POS System 🚗🛢️
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive, tailored, offline-first Point of Sale (POS) and Inventory Management System designed specifically for a freelance client operating in the automotive oil and maintenance sector. 
 
-## Available Scripts
+This platform bridges the gap between premium design aesthetics and complex business logic, enabling the client to track daily operations, manage dynamic inventory configurations, and handle automated financial reporting smoothly.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🚀 Core Architectural Highlights
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+*   **Offline-First Local Deployment:** Customized deployment engineered to run 100% offline. Built using a specialized automated startup script (`.bat`) that provisions both frontend and backend server instances with a single click, completely abstracting terminal complexity for the end-user.
+*   **Headless CMS Backing:** Powered by **Strapi Headless CMS** to architecturalize complex database relationships, ensuring data consistency and strict validation guardrails.
+*   **High-Performance State Orchestration:** Utilizing **React Query** for server state management and asynchronous data fetching alongside **React Hook Form** to optimize dynamic component form renders.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Tech Stack & Technical Tools
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+*   **Frontend Ecosystem:** React.js, Tailwind CSS.
+*   **State & Form Management:** React Query (TanStack Query), React Hook Form.
+*   **Backend Architecture:** Strapi (Headless CMS).
+*   **Automation:** Windows Batch Scripting (`.bat`).
+*   **Hardware Integration:** Barcode Scanner, Thermal Printers.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## ✨ Key Features & Live Screens
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. Premium Financial Dashboard & Data Visualization
+Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debts), and running operational expenses. It features visual performance metrics displaying top-selling products using custom progress tracking.
+> *Handled via **React Query** to update financial calculations dynamically upon transaction completion.*
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+📊 **Dashboard View:**
+![Financial Dashboard](1.png)
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 2. Live Expense Tracking (الخوارج)
+Dedicated portal for logging ongoing operating expenditures. Any logged expense dynamically computes and updates the cash reserves and net profit margins across the central dashboard layout.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+💸 **Expense Tracker:**
+![Expense Tracking Page](2.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 3. Smart Inventory Control & Low-Stock Alerts
+Automated warehouse monitoring that prevents stock discrepancies. The system features a real-time reactive trigger that flags products into a critical alert board ("النواقص") the moment stock dips below 20 units.
 
-## Learn More
+⚠️ **Low-Stock Alert Center:**
+![Stock Alerts Panel](3.png)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 4. Advanced Product Variants Architecture
+Handles complex product structuring using a **Self-Referencing Relationship** via `parent_id`. Products with identical branding but varying fluid volumes (e.g., 1L, 4L, 5L) are structured hierarchically. 
+The form leverages **React Hook Form** to control highly interactive row insertion, tracking distinct prices, stock levels, and barcodes per variant without causing unnecessary re-renders.
 
-### Code Splitting
+📝 **Dynamic Form Architecture:**
+![Variant Form Management](Screenshot%202026-05-28%20100733.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+### 5. Point of Sale Terminal & Checkout Workflow
+An interactive, high-speed cash register screen built for heavy day-long operations. Fully integrated with physical **Barcode Scanners** for quick item selection, manual discount allocation, and split-payment management (Cash vs. Credit/Debts).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+🛒 **POS Workspace:**
+![POS Interface](6.png)
+🔲 **Checkout Modal:**
+![Checkout Flow](5.png)
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 6. Hardware Integration & Thermal Receipts
+Custom-tailored `ThermalReceipt` canvas optimized directly for structural layout rendering on physical thermal paper. Generates comprehensive end-of-day shifting updates and distinct client receipts on the fly.
 
-### Advanced Configuration
+🧾 **Thermal Receipt Canvas:**
+![Generated Receipt](Screenshot%202026-05-28%20093703_2.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## ⚙️ How It Works (Local Automation)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Since the production requirement necessitated a strict **100% Offline/Local Environment**, the system architecture uses a seamless execution sequence:
 
-### `npm run build` fails to minify
+1. Local machine triggers the customized execution script: `run-pos-system.bat`.
+2. The batch command spins up the backend relational environment (**Node.js/Strapi Core**).
+3. Simultaneously provisions the **React client node bundle**.
+4. Spawns an automated trigger opening the localized viewport at `http://localhost:3000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+*Developed as a custom freelance business solution.*
