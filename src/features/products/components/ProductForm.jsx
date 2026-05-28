@@ -117,6 +117,10 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
                 <input type="number" {...register(`variants.${index}.quantity`, { required: "مطلوب", valueAsNumber: true })} className="border p-2 rounded-md text-sm outline-none" />
                 {errors.variants?.[index]?.quantity && <span className="text-[10px] text-red-500">مطلوب</span>}
               </div>
+                <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-stone-900">الباركود</label>
+                <input type="number" {...register(`variants.${index}.barcode`)} className="border p-2 rounded-md text-sm outline-none" />
+              </div>
 
               <div className="flex items-end">
                 <button type="button" onClick={() => remove(index)} className="w-full bg-red-50 text-red-500 py-2 rounded-md hover:bg-red-500 hover:text-white text-xs font-bold">حذف</button>
