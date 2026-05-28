@@ -30,11 +30,11 @@ This platform bridges the gap between premium design aesthetics and complex busi
 Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debts), and running operational expenses. It features visual performance metrics displaying top-selling products using custom progress tracking.
 > *Handled via **React Query** to update financial calculations dynamically upon transaction completion.*
 
-📊 **Main Dashboard View:**
-![Financial Dashboard](1_2.png)
+📊 **Main Dashboard Overview:**
+![Financial Dashboard](dash1.png)
 
 📊 **Date-Filtered Statistics View:**
-![Filtered Statistics View](Screenshot%202026-05-28%20103341_2.png)
+![Filtered Statistics View](dash2.png)
 
 ---
 
@@ -42,7 +42,7 @@ Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debt
 Dedicated portal for logging ongoing operating expenditures. Any logged expense dynamically computes and updates the cash reserves and net profit margins across the central dashboard layout.
 
 💸 **Expense Tracker:**
-![Expense Tracking Page](2_2.png)
+![Expense Tracking Page](expenses.png)
 
 ---
 
@@ -50,39 +50,11 @@ Dedicated portal for logging ongoing operating expenditures. Any logged expense 
 Automated warehouse monitoring that prevents stock discrepancies. The system features a real-time reactive trigger that flags products into a critical alert board ("النواقص") the moment stock dips below 20 units.
 
 ⚠️ **Low-Stock Alert Center:**
-![Stock Alerts Panel](3_2.png)
+![Stock Alerts Panel](lower.png)
 
 📦 **Inventory Analytics & Sales Log:**
-![Sales Management Table](Screenshot%202026-05-28%20103149_2.png)
-![Inventory Overview](4_2.png)
-
----
-
-### 4. Advanced Product Variants Architecture
-Handles complex product structuring using a **Self-Referencing Relationship** via `parent_id`. Products with identical branding but varying fluid volumes (e.g., 1L, 4L, 5L) are structured hierarchically. 
-The form leverages **React Hook Form** to control highly interactive row insertion, tracking distinct prices, stock levels, and barcodes per variant without causing unnecessary re-renders.
-
-📝 **Dynamic Form Architecture:**
-![Variant Form Management](Screenshot%202026-05-28%20100733_2.png)
-
----
-
-### 5. Point of Sale Terminal & Checkout Workflow
-An interactive, high-speed cash register screen built for heavy day-long operations. Fully integrated with physical **Barcode Scanners** for quick item selection, manual discount allocation, and split-payment management (Cash vs. Credit/Debts).
-
-🛒 **POS Workspace:**
-![POS Interface](6_2.png)
-
-🔲 **Checkout Modal:**
-![Checkout Flow](5_2.png)
-
----
-
-### 6. Hardware Integration & Thermal Receipts
-Custom-tailored `ThermalReceipt` canvas optimized directly for structural layout rendering on physical thermal paper. Generates comprehensive end-of-day shifting updates and distinct client receipts on the fly.
-
-🧾 **Thermal Receipt Canvas:**
-![Generated Receipt](Screenshot%202026-05-28%20093703_3.png)
+![Sales Management Table](sales.png)
+![Inventory Overview](products.png)
 
 ---
 
