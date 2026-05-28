@@ -1,71 +1,148 @@
-# Oil Management POS System 🚗🛢️
-
-A comprehensive, tailored, offline-first Point of Sale (POS) and Inventory Management System designed specifically for a freelance client operating in the automotive oil and maintenance sector. 
-
-This platform bridges the gap between premium design aesthetics and complex business logic, enabling the client to track daily operations, manage dynamic inventory configurations, and handle automated financial reporting smoothly.
+# 🚗 OIL MANAGEMENT SYSTEM
+### Enterprise POS & Inventory Platform for Automotive Oil Businesses
 
 ---
 
-## 🚀 Core Architectural Highlights
+## 📌 Overview
+**Oil Management System** is a modern, offline-first Point of Sale (POS) and Inventory Management platform engineered specifically for automotive oil shops, lubrication centers, and vehicle maintenance businesses.
 
-*   **Offline-First Local Deployment:** Customized deployment engineered to run 100% offline. Built using a specialized automated startup script (`.bat`) that provisions both frontend and backend server instances with a single click, completely abstracting terminal complexity for the end-user.
-*   **Headless CMS Backing:** Powered by **Strapi Headless CMS** to architecturalize complex database relationships, ensuring data consistency and strict validation guardrails.
-*   **High-Performance State Orchestration:** Utilizing **React Query** for server state management and asynchronous data fetching alongside **React Hook Form** to optimize dynamic component form renders.
+The system combines high-performance operational workflows, financial tracking, and warehouse management into a unified desktop-focused experience optimized for real-world daily usage.
 
----
-
-## 🛠️ Tech Stack & Technical Tools
-
-*   **Frontend Ecosystem:** React.js, Tailwind CSS.
-*   **State & Form Management:** React Query (TanStack Query), React Hook Form.
-*   **Backend Architecture:** Strapi (Headless CMS).
-*   **Automation:** Windows Batch Scripting (`.bat`).
-*   **Hardware Integration:** Barcode Scanner, Thermal Printers.
+Designed with a strong emphasis on:
+* ⚡ **Real-time performance**
+* 🧠 **Business-oriented architecture**
+* 🔒 **Data consistency & validation**
+* 📦 **Inventory reliability**
+* 🧾 **Financial transparency**
+* 🖥️ **Zero-latency local operations**
 
 ---
 
-## ✨ Key Features & Live Screens
+## ✨ Key Features
 
-### 1. Premium Financial Dashboard & Data Visualization
-Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debts), and running operational expenses. It features visual performance metrics displaying top-selling products using custom progress tracking.
-> *Handled via **React Query** to update financial calculations dynamically upon transaction completion.*
+### 📊 Advanced Dashboard & Business Analytics
+A premium analytics dashboard providing instant visibility into operational performance.
+* Real-time sales and profit tracking
+* Daily cash-flow monitoring
+* Debt management system (الآجل)
+* Dynamic statistical filtering by date ranges
+* Top-selling products visualization
+* Smart KPI cards and progress metrics
+* Live recalculated business indicators
 
-📊 **Main Dashboard Overview:**
-![Financial Dashboard](dash1.png)
+### 🛒 High-Speed POS System
+Optimized for rapid in-store checkout workflows.
+* Lightning-fast checkout experience
+* Barcode scanner integration
+* Split payment handling (Cash / Credit)
+* Manual discount processing
+* Real-time cart calculations
+* Reactive stock deduction after successful orders
+* Thermal receipt printing support
 
-📊 **Date-Filtered Statistics View:**
-![Filtered Statistics View](dash2.png)
+### 📦 Smart Inventory Management
+Enterprise-grade warehouse management built around strict validation logic.
+* Product quantity tracking
+* Variant-based inventory architecture
+* Hierarchical product relationships
+* Automated low-stock detection
+* Critical stock alert board ("النواقص")
+* Historical sales & transaction logging
+* Protection against negative inventory states
+
+### 💸 Expense & Financial Control
+Integrated expense management module tightly connected to business analytics.
+* Operational expense logging
+* Live profit recalculations
+* Financial ledger synchronization
+* Expense categorization
+* Daily operational tracking
+
+---
+
+## 🧱 Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React.js |
+| **Styling** | Tailwind CSS |
+| **Server State** | TanStack Query (React Query) |
+| **Form Management** | React Hook Form |
+| **Backend CMS** | Strapi |
+| **Runtime** | Node.js |
+| **Automation** | Windows Batch Scripts (`.bat`) |
+| **Hardware Support** | Barcode Scanners & Thermal Printers |
 
 ---
 
-### 2. Live Expense Tracking (الخوارج)
-Dedicated portal for logging ongoing operating expenditures. Any logged expense dynamically computes and updates the cash reserves and net profit margins across the central dashboard layout.
+## 🏗️ System Architecture & Engineering Decisions
 
-💸 **Expense Tracker:**
-![Expense Tracking Page](expenses.png)
-
----
-
-### 3. Smart Inventory Control & Low-Stock Alerts
-Automated warehouse monitoring that prevents stock discrepancies. The system features a real-time reactive trigger that flags products into a critical alert board ("النواقص") the moment stock dips below 20 units.
-
-⚠️ **Low-Stock Alert Center:**
-![Stock Alerts Panel](lower.png)
-
-📦 **Inventory Analytics & Sales Log:**
-![Sales Management Table](sales.png)
-![Inventory Overview](products.png)
+* **🔹 Offline-First Infrastructure:** The entire system is designed to operate independently from cloud dependencies, enabling stable operation in local business environments with unreliable internet connectivity.
+* **🔹 Hierarchical Product Variant System:** Implemented using a self-referencing relational architecture (`parent_id`) allowing complex product structures such as fluid volumes (1L, 4L, 5L) while maintaining grouped inventory relationships and scalable warehouse logic.
+* **🔹 High-Performance Form Handling:** Large transactional forms are managed using *React Hook Form* to minimize unnecessary component re-renders and maintain responsive UI interactions during intensive operations.
+* **🔹 Server-State Synchronization:** The platform uses *TanStack Query* for intelligent caching, optimistic updates, mutation orchestration, and server-state consistency across highly dynamic financial and inventory views.
+* **🔹 Hardware-Optimized Components:** Custom receipt rendering components were specifically engineered for thermal printers, compact receipt layouts, accurate print alignment, and production-grade POS printing.
 
 ---
 
-## ⚙️ How It Works (Local Automation)
+## 🚀 Deployment & Local Automation
 
-Since the production requirement necessitated a strict **100% Offline/Local Environment**, the system architecture uses a seamless execution sequence:
+### ⚙️ One-Click Startup Experience
+The application environment is fully automated using custom Windows batch scripting. The orchestration script automatically:
+1. Starts the Strapi backend server
+2. Launches the React frontend
+3. Boots the local workspace environment
+4. Opens the application instantly at: `http://localhost:3000`
 
-1. Local machine triggers the customized execution script: `run-pos-system.bat`.
-2. The batch command spins up the backend relational environment (**Node.js/Strapi Core**).
-3. Simultaneously provisions the **React client node bundle**.
-4. Spawns an automated trigger opening the localized viewport at `http://localhost:3000`.
+### 🔒 100% Local Runtime
+No external services are required for daily operation. This ensures maximum speed, operational stability, local business privacy, and reduced infrastructure costs.
 
 ---
-*Developed as a custom freelance business solution.*
+
+## 📸 Project Showcase
+
+### 📊 Dashboard & Financial Analytics
+
+#### Main Dashboard Overview
+![Main Dashboard](dash1.png)
+
+#### 📈 Statistical Analytics (Date Filtered Metrics)
+![Statistical Analytics](dash2.png)
+
+---
+
+### 💸 Expense Management
+
+#### Expenses Ledger (الخوارج)
+![Expense Management](expenses.png)
+
+---
+
+### 📦 Inventory & Stock Monitoring
+
+#### Low Stock Alerts ("النواقص")
+![Low Stock Alerts](lower.png)
+
+#### Product Management Table & Variant Catalog
+![Product Management](products.png)
+
+---
+
+### 🛒 POS Checkout Experience
+
+#### POS Terminal Workspace & Checkout Flow
+![POS Terminal](sales.png)
+
+---
+
+## ⚙️ Installation & Local Setup
+
+### 1️⃣ Requirements
+Ensure the following are installed locally:
+* Node.js
+* npm
+* Strapi CMS
+
+### 2️⃣ Clone Repository
+```bash
+git clone [https://github.com/AbdulrhamnAhmed29/Oil-Management-System](https://github.com/AbdulrhamnAhmed29/Oil-Management-System)
