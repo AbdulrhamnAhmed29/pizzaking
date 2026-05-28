@@ -9,6 +9,8 @@ import { useOrderMutation } from "../../orders/hooks/useMutationOrders"
 import { CustomToast } from '../../../ui/ToastComponent';
 import { ReceiptDesign } from '../../orders/components/Receipt';
 import { useReactToPrint } from 'react-to-print';
+import { BULK, PRODUCT_TYPE } from '../../../constants/orderStatus';
+
 
 
 const POSPage = () => {
@@ -19,28 +21,22 @@ const POSPage = () => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
+  console.log(cart);
+  
   // search input 
   const [searchTerm, setSearchTerm] = useState('');
   //  filtration 
   const [selectedCategory, setSelectedCategory] = useState('الكل');
   const [selectedSubFilter, setSelectedSubFilter] = useState("الكل");
   const [selectedParent, setSelectedParent] = useState(null);
-  const [selectedAttribute, setSelectedAttribute] = useState('جركن');
+  const [selectedAttribute, setSelectedAttribute] = useState(BULK.QUANTITY);
   const searchRef = useRef(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
-
-
-  
-
-
   // reciept data 
 
-  const contentRef = useRef(null);
   const [dataToPrint, setDataToPrint] = useState(null);
-  const handlePrint = useReactToPrint({
-    contentRef,
-  });
+
 
   //  Model 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,12 +44,16 @@ const POSPage = () => {
   const { createOrder, isLoading } = useOrderMutation();
 
 
+  const contentRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: contentRef,
+  });
 
   const handleConfirm = (formData) => {
     createOrder({ orderData: formData, cart: cart },
       {
         onSuccess: () => {
-          handlePrint();
+          handlePrint()
           setCart([]);
           setTimeout(() => {
             setDataToPrint(null);
@@ -100,8 +100,8 @@ const POSPage = () => {
     return allProducts.filter(product => {
       const isParent = !product.parent_id;
       const matchesCat = selectedCategory === 'الكل' || product.category?.name === selectedCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || String(product.barcode || '').includes(searchTerm);
-      const brandName = Array.isArray(product.brand) ? product.brand[0]?.name : product.brand?.name;
+      const matchesSearch = product?.name.toLowerCase().includes(searchTerm.toLowerCase()) || String(product.barcode || '').includes(searchTerm);
+      const brandName = Array.isArray(product.brand) ? product?.brand[0]?.name : product?.brand?.name;
       const matchesSubFilter = selectedSubFilter === 'الكل' || brandName === selectedSubFilter;
       return isParent && matchesCat && matchesSearch && matchesSubFilter;
     });
@@ -134,36 +134,38 @@ const POSPage = () => {
 
   const cartTotal = useMemo(() => cart.reduce((s, i) => s + (Number(i.cost_price) * i.quantity), 0), [cart]);
 
-const addToCart = useCallback((product) => {
-  setCart(prev => {
-    // 1. شوف المنتج ده موجود في السلة بكام حالياً؟
-    const existing = prev.find(item => item.documentId === product.documentId);
-    const currentQtyInCart = existing ? existing.quantity : 0;
+  const addToCart = useCallback((product) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.documentId === product.documentId);
+      const qtyInCart = existing ? existing.quantity : 0;
+      const productType = product.type;
+      const isProduct = productType === PRODUCT_TYPE.PRODUCT;
+      if (isProduct) {
+        if (qtyInCart + 1 > Number(product.quantity || 0) ) {
+          setToast({
+            show: true,
+            message: `عفواً، لا يوجد رصيد كافٍ من ${product.name} (المتوفر: ${product.quantity})`,
+            type: 'error'
+          });
+          return prev;
+        }
+      }
 
-    // 2. شرط الأمان: هل الكمية اللي في السلة + 1 أكبر من اللي موجود في المخزن؟
-    if (currentQtyInCart + 1 > product.quantity) {
-      setToast({ show: true, message: `عفواً، لا يوجد رصيد كافٍ من ${product.name} (المتوفر: ${product.quantity})`, type: 'error' });
-      return prev; // رجع السلة زي ما هي بدون إضافات
-    }
-
-    // 3. لو الشرط تمام، كمل عملية الإضافة العادية
-    if (existing) {
-      return prev.map(item => 
-        item.documentId === product.documentId 
-          ? { ...item, quantity: item.quantity + 1 } 
-          : item
-      );
-    }
-
-    setToast({ show: true, message: `تم إضافة ${product.name} للسلة` });
-    return [...prev, { ...product, quantity: 1 }];
-  });
-}, []);
+      if (existing) {
+        return prev.map(item =>
+          item.documentId === product.documentId
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      setToast({ show: true, message: `تم إضافة ${product.name} للسلة` });
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  }, []);
 
   const scannedProduct = useMemo(() => {
     if (!searchTerm || !allProducts) return null;
 
-    // البحث عن منتج يطابق الباركود تماماً
     return allProducts.find(p => String(p.barcode) === searchTerm);
   }, [searchTerm, allProducts]);
 
@@ -252,7 +254,7 @@ const addToCart = useCallback((product) => {
             ref={contentRef}
             orderData={dataToPrint.orderData}
             cart={dataToPrint.cart}
-            
+
           />
         </div>
       )}

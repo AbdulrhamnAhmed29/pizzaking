@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
+import { PRODUCT_TYPE } from '../../../constants/orderStatus';
 
 export default function ProductForm({ categories, brands, Mutate, attributeSet, attribute }) {
   const { register, control, handleSubmit, formState: { errors } } = useForm({
@@ -7,6 +8,7 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
       name: '',
       category_id: '',
       brand_id: '',
+      product_type: '',
       bulk_quantity: 0,
       variants: [{ attribute_id: '', buying_price: 0, cost_price: 0, quantity: 0, barcode: '', attributeSet: '' }]
     }
@@ -22,6 +24,7 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
   });
 
   const onSubmit = (data) => {
+    console.log(data);   
     clearData();
     return Mutate(data);
   };
@@ -37,6 +40,14 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
             className={`w-full border p-2.5 rounded-lg focus:ring-2 outline-none ${errors.name ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
           />
           {errors.name && <span className="text-xs text-red-500">{errors.name.message}</span>}
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-semibold text-stone-800 mr-1">اختر النوع</label>
+          <select {...register("product_type", { required: "اختر نوع المنتج " })} className={`w-full border p-2.5 rounded-lg bg-white outline-none ${errors.category_id ? 'border-red-500' : 'border-gray-300'}`}>
+            <option value=""> اختر نوع المنتج</option>
+            <option value={PRODUCT_TYPE.PRODUCT}>منتج</option>
+            <option value={PRODUCT_TYPE.SERVICES}> خدمة</option>
+          </select>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -74,7 +85,7 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
         <div className="space-y-4">
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-              
+
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-bold text-stone-900">النوع</label>
                 <select {...register(`variants.${index}.attributeSet`, { required: "مطلوب" })} className="border p-2 rounded-md text-sm outline-none">

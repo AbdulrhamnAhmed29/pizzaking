@@ -2,10 +2,11 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { servicesOrders } from '../servicesOrders/ServicesOrders';
 import { useGetProducts } from "../../products/hooks/UseGetProducts"
 import productService from '../../products/services/Services';
-import { ORDER_STATUS } from '../../../constants/orderStatus';
+import { BULK, ORDER_STATUS, PRODUCT_TYPE } from '../../../constants/orderStatus';
 export const useOrderMutation = () => {
     const queryClient = useQueryClient()
-    const { data } = useGetProducts()
+    const { data } = useGetProducts();
+
     const playSaleSound = () => {
         const audio = new Audio('/sound/sell.mp3');
         audio.play().catch(err => console.log("الصوت محتاج تفاعل أولاً"));
@@ -31,50 +32,60 @@ export const useOrderMutation = () => {
                 }
             });
             const orderDocId = orderResponse?.documentId;
+
             const itemPromises = cart.map(async (item) => {
-                // 1. cart product
-                const originalProduct = data.find(p => p.documentId === item.documentId);
-                let updatePayload = {};
+                const productType = item.product_type || item.attributes?.[0]?.name;
+                const isService = productType === PRODUCT_TYPE.SERVICE;
+                const is_bulk = item.attribute_sets?.[0]?.name === BULK.BULK;
+                const originalProduct = data?.data?.find(p => p.documentId === item.documentId);
+
+                let updatePayload = null;
                 let targetDocId = item.documentId;
-                const is_bulk = item.attribute_sets?.[0]?.name === ORDER_STATUS.CREDIT;
-                if (is_bulk) {
-                    // if bulk parent discount 
-                    const parentProductDocId = originalProduct?.parent_id;
-                    const parentProduct = data.find((p) => p.documentId === parentProductDocId);
-                    if (parentProduct) {
-                        const currentStockInBulk = Number(parentProduct.bulk_quantity || 0);
-                        // factor * quantity 
-                        const conversionFactor = Number(item.attributes?.[0]?.conversion_factor || 1);
-                        const itemStockFactor = conversionFactor * Number(item.quantity);
-                        const finalStockInBulk = currentStockInBulk - itemStockFactor;
-                        updatePayload = { bulk_quantity: finalStockInBulk };
-                        targetDocId = parentProduct.documentId;
+
+                if (!isService) {
+                    if (is_bulk) {
+                        const parentProductDocId = originalProduct?.parent_id;
+                        const parentProduct = data?.data?.find((p) => p.documentId === parentProductDocId);
+                        if (parentProduct) {
+                            const currentStockInBulk = Number(parentProduct.bulk_quantity || 0);
+                            const conversionFactor = Number(item.attributes?.[0]?.conversion_factor || 1);
+                            const itemStockFactor = conversionFactor * Number(item.quantity);
+                            const finalStockInBulk = currentStockInBulk - itemStockFactor;
+                            updatePayload = { bulk_quantity: finalStockInBulk };
+                            targetDocId = parentProduct.documentId;
+                        }
+                    } else {
+                        const currentStock = Number(originalProduct?.quantity || 0);
+                        const itemStockInOrder = Number(item.quantity);
+                        const finalStock = currentStock - itemStockInOrder;
+                        updatePayload = { quantity: finalStock };
                     }
-                } else {
-                    //  if not bulk 
-                    const currentStock = Number(originalProduct?.quantity || 0);
-                    const itemStockInOrder = Number(item.quantity);
-                    const finalStock = currentStock - itemStockInOrder;
-                    updatePayload = { quantity: finalStock };
                 }
-                // 2.Order Item Payload
+
                 const orderItemsPayload = {
                     data: {
                         order: orderDocId,
                         product: item.documentId,
                         quantityInOrder: item.quantity,
-                        buying_price: item.buying_price,
+                        buying_price: isService ? 0 : (item.buying_price || 0),
                         unit_price: item.cost_price,
                         sub_total: item.cost_price * item.quantity,
                         attribute_sets: item.attribute_sets?.[0]?.documentId,
-                        product_type:item.attributes?.[0].name
+                        product_type: productType
                     }
                 };
-                return Promise.all([
-                    servicesOrders.createOrdersItems(orderItemsPayload),
-                    productService.updateProduct(targetDocId, { data: updatePayload })
-                ]);
+
+                const promises = [
+                    servicesOrders.createOrdersItems(orderItemsPayload)
+                ];
+
+                if (updatePayload !== null) {
+                    promises.push(productService.updateProduct(targetDocId, { data: updatePayload }));
+                }
+
+                return Promise.all(promises);
             });
+
             return await Promise.all(itemPromises);
         },
         onSuccess: async () => {
