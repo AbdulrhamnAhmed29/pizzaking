@@ -104,34 +104,34 @@ No external services are required for daily operation. This ensures maximum spee
 ### 📊 Dashboard & Financial Analytics
 
 #### Main Dashboard Overview
-![Main Dashboard](dash1.png)
+![Main Dashboard](./READme_Images/dash1.png)
 
 #### 📈 Statistical Analytics (Date Filtered Metrics)
-![Statistical Analytics](dash2.png)
+![Statistical Analytics](./READme_Images/dash2.png)
 
 ---
 
 ### 💸 Expense Management
 
 #### Expenses Ledger (الخوارج)
-![Expense Management](expenses.png)
+![Expense Management](./READme_Images/expenses.png)
 
 ---
 
 ### 📦 Inventory & Stock Monitoring
 
 #### Low Stock Alerts ("النواقص")
-![Low Stock Alerts](lower.png)
+![Low Stock Alerts](./READme_Images/lower.png)
 
 #### Product Management Table & Variant Catalog
-![Product Management](products.png)
+![Product Management](./READme_Images/products.png)
 
 ---
 
 ### 🛒 POS Checkout Experience
 
 #### POS Terminal Workspace & Checkout Flow
-![POS Terminal](sales.png)
+![POS Terminal](./READme_Images/sales.png)
 
 ---
 
