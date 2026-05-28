@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
+import { PRODUCT_TYPE } from '../../../constants/orderStatus';
 
 function UpdateForm({ attributeSet, attributes, allProducts, brands, update, categories }) {
-    const Products = allProducts || [];
+    const Products = allProducts.data || [];
     const Brands = brands || [];
     const Categories = categories || [];
     const Attributes = attributes || [];
@@ -28,13 +29,13 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
         localStorage.removeItem("cart");
 
     };
-
     const { register, handleSubmit, reset, control } = useForm({
         defaultValues: {
             name: '',
             category_id: '',
             brand_id: '',
             bulk_quantity: 0,
+            product_type: '',
             variants: []
         }
     });
@@ -51,6 +52,7 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
                 category_id: currantProduct.category?.documentId,
                 brand_id: currantProduct.brand?.documentId,
                 bulk_quantity: currantProduct.bulk_quantity || 0,
+                product_type: currantProduct.type,
                 variants: children.map((product) => ({
                     documentId: product.documentId,
                     attribute_id: product.attributes?.[0]?.documentId || '',
@@ -86,6 +88,13 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
                         {...register("name", { required: true })}
                         className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-900"
                     />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-semibold text-stone-800 mr-1">النوع</label>
+                    <select {...register("product_type", { required: true })} className="w-full border border-gray-300 p-2.5 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-900">
+                        <option value={PRODUCT_TYPE.PRODUCT}>منتج</option>
+                        <option value={PRODUCT_TYPE.SERVICES}>خدمة</option>
+                    </select>
                 </div>
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-semibold text-stone-800 mr-1">القسم</label>

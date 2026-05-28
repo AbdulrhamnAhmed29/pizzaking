@@ -108,6 +108,8 @@ export const servicesOrders = {
 
     // order items 
     createOrdersItems: async (payload) => {
+        console.log(payload);
+        
         const { data } = await BaseApi.create("/order-items", payload);
         return data
     },

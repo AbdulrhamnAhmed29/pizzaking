@@ -15,13 +15,14 @@ export const useMutationProduct = () => {
           category: payload.category_id,
           brand: payload.brand_id,
           bulk_quantity: payload.bulk_quantity,
+          type: payload.product_type
         },
       }
         ;
       const parentResponse = await productService.addProduct(parentPayload);
       const parentId = parentResponse.documentId;
       const productName = parentResponse.name;
-      
+
 
       const childrenPromises = await payload.variants.map((v) => {
         const childPayload = {
@@ -31,9 +32,10 @@ export const useMutationProduct = () => {
             attributes: v.attribute_id,
             barcode: v.barcode,
             parent_id: parentId,
-            buying_price:v.buying_price,
+            buying_price: v.buying_price,
             cost_price: v.cost_price,
             quantity: v.quantity,
+            type: payload.product_type
           }
         }
 
@@ -77,6 +79,7 @@ export const useMutationProduct = () => {
           category: payload.category_id,
           brand: payload.brand_id,
           bulk_quantity: payload.bulk_quantity,
+          type: payload.product_type,
         },
       };
 
@@ -95,9 +98,11 @@ export const useMutationProduct = () => {
             attributes: v.attribute_id,
             barcode: v.barcode,
             parent_id: parentId,
-            buying_price:v.buying_price,
+            buying_price: v.buying_price,
             cost_price: v.cost_price,
             quantity: v.quantity,
+            type: payload.product_type
+
           }
         };
 

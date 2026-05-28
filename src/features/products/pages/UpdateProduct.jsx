@@ -12,7 +12,7 @@ import { ArrowRight } from 'lucide-react';
 function UpdateProduct() {
     const { id } = useParams();
     const { data, isLoading } = useGetProducts();
-    const currentProduct = data?.find(p => p.documentId === id);
+    const currentProduct = data.data?.find(p => p.documentId === id);
     const { categories } = useCategory();
     const { brands } = useGetBrands();
     const { attributeSet } = useGetAttributeSet();
