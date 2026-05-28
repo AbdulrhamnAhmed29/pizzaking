@@ -96,16 +96,7 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                 />
                                 {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
                             </div>
-                            {/* Customer phone */}
-                            <div>
-                                <label className="block text-sm mb-1.5 font-semibold text-zinc-700">رقم العميل</label>
-                                <input
-                                    {...register("customerPhone")}
-                                    autoFocus
-                                    className="w-full border border-zinc-300 p-2.5 rounded-xl outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
-                                />
-                                {errors.customerPhone && <p className="text-red-500 text-xs mt-1">{errors.customerPhone.message}</p>}
-                            </div>
+                        
 
                             <div className="flex gap-4">
                                 {/* Discount */}
