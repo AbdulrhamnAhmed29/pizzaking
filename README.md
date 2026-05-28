@@ -30,8 +30,11 @@ This platform bridges the gap between premium design aesthetics and complex busi
 Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debts), and running operational expenses. It features visual performance metrics displaying top-selling products using custom progress tracking.
 > *Handled via **React Query** to update financial calculations dynamically upon transaction completion.*
 
-📊 **Dashboard View:**
-![Financial Dashboard](1.png)
+📊 **Main Dashboard View:**
+![Financial Dashboard](1_2.png)
+
+📊 **Date-Filtered Statistics View:**
+![Filtered Statistics View](Screenshot%202026-05-28%20103341_2.png)
 
 ---
 
@@ -39,7 +42,7 @@ Provides real-time, zero-latency breakdowns of daily cash reserves, credit (debt
 Dedicated portal for logging ongoing operating expenditures. Any logged expense dynamically computes and updates the cash reserves and net profit margins across the central dashboard layout.
 
 💸 **Expense Tracker:**
-![Expense Tracking Page](2.png)
+![Expense Tracking Page](2_2.png)
 
 ---
 
@@ -47,7 +50,11 @@ Dedicated portal for logging ongoing operating expenditures. Any logged expense 
 Automated warehouse monitoring that prevents stock discrepancies. The system features a real-time reactive trigger that flags products into a critical alert board ("النواقص") the moment stock dips below 20 units.
 
 ⚠️ **Low-Stock Alert Center:**
-![Stock Alerts Panel](3.png)
+![Stock Alerts Panel](3_2.png)
+
+📦 **Inventory Analytics & Sales Log:**
+![Sales Management Table](Screenshot%202026-05-28%20103149_2.png)
+![Inventory Overview](4_2.png)
 
 ---
 
@@ -56,7 +63,7 @@ Handles complex product structuring using a **Self-Referencing Relationship** vi
 The form leverages **React Hook Form** to control highly interactive row insertion, tracking distinct prices, stock levels, and barcodes per variant without causing unnecessary re-renders.
 
 📝 **Dynamic Form Architecture:**
-![Variant Form Management](Screenshot%202026-05-28%20100733.png)
+![Variant Form Management](Screenshot%202026-05-28%20100733_2.png)
 
 ---
 
@@ -64,9 +71,10 @@ The form leverages **React Hook Form** to control highly interactive row inserti
 An interactive, high-speed cash register screen built for heavy day-long operations. Fully integrated with physical **Barcode Scanners** for quick item selection, manual discount allocation, and split-payment management (Cash vs. Credit/Debts).
 
 🛒 **POS Workspace:**
-![POS Interface](6.png)
+![POS Interface](6_2.png)
+
 🔲 **Checkout Modal:**
-![Checkout Flow](5.png)
+![Checkout Flow](5_2.png)
 
 ---
 
@@ -74,7 +82,7 @@ An interactive, high-speed cash register screen built for heavy day-long operati
 Custom-tailored `ThermalReceipt` canvas optimized directly for structural layout rendering on physical thermal paper. Generates comprehensive end-of-day shifting updates and distinct client receipts on the fly.
 
 🧾 **Thermal Receipt Canvas:**
-![Generated Receipt](Screenshot%202026-05-28%20093703_2.png)
+![Generated Receipt](Screenshot%202026-05-28%20093703_3.png)
 
 ---
 
