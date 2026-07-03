@@ -3,7 +3,7 @@ import { ShoppingCart, Trash2, Plus, Minus, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
-    
+
     const updateQuantity = (id, delta) => {
         setCart(prev => prev.map(item =>
             item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
@@ -38,9 +38,9 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
             <div className="p-5 bg-zinc-900 text-white rounded-bl-[3rem] shadow-lg relative overflow-hidden">
                 <div className="flex justify-between items-center mb-3">
                     <h2 className="text-xl font-black flex items-center gap-2">
-                        <ShoppingCart size={24} className="text-[#D4AF37]" /> 
+                        <ShoppingCart size={24} className="text-[#D4AF37]" />
                     </h2>
-                    <motion.span 
+                    <motion.span
                         key={cart.length}
                         initial={{ scale: 1.5, backgroundColor: "#fff" }}
                         animate={{ scale: 1, backgroundColor: "#D4AF37" }}
@@ -62,7 +62,7 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
                                 transition={{ duration: 0.3, ease: "easeOut" }}
                                 className="text-5xl font-black text-[#D4AF37] flex items-baseline gap-2"
                             >
-                                {cartTotal.toFixed(2)} 
+                                {cartTotal.toFixed(2)}
                                 <span className="text-sm text-zinc-500 font-medium">ج.م</span>
                             </motion.p>
                         </AnimatePresence>
@@ -74,7 +74,7 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                 <AnimatePresence mode="popLayout">
                     {cart.length === 0 ? (
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
@@ -106,14 +106,14 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
 
                                 {/* Quantity Controls */}
                                 <div className="flex items-center gap-1 bg-zinc-50 rounded-xl p-1 border border-zinc-100">
-                                    <motion.button 
+                                    <motion.button
                                         whileTap={{ scale: 0.8 }}
-                                        onClick={() => updateQuantity(item.id, -1)} 
+                                        onClick={() => updateQuantity(item.id, -1)}
                                         className="w-7 h-7 flex items-center justify-center bg-white rounded-lg text-zinc-500 shadow-sm hover:text-red-500 transition-colors"
                                     >
                                         <Minus size={12} />
                                     </motion.button>
-                                    
+
                                     <div className="w-8 h-7 relative overflow-hidden flex items-center justify-center">
                                         <AnimatePresence mode="popLayout">
                                             <motion.span
@@ -129,19 +129,19 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
                                         </AnimatePresence>
                                     </div>
 
-                                    <motion.button 
+                                    <motion.button
                                         whileTap={{ scale: 0.8 }}
-                                        onClick={() => updateQuantity(item.id, 1)} 
+                                        onClick={() => updateQuantity(item.id, 1)}
                                         className="w-7 h-7 flex items-center justify-center bg-zinc-900 rounded-lg text-white shadow-sm hover:bg-zinc-700 transition-colors"
                                     >
                                         <Plus size={12} />
                                     </motion.button>
                                 </div>
 
-                                <motion.button 
+                                <motion.button
                                     whileHover={{ scale: 1.1, color: "#ef4444" }}
                                     whileTap={{ scale: 0.9 }}
-                                    onClick={() => removeItem(item.id)} 
+                                    onClick={() => removeItem(item.id)}
                                     className="p-1.5 text-zinc-300 transition-colors"
                                 >
                                     <Trash2 size={16} />
@@ -169,15 +169,19 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
                         </motion.button>
                     )}
                 </AnimatePresence>
-                
-                <motion.button
-                    whileHover={{ backgroundColor: "#f4f4f5" }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={clearCart}
-                    className="w-full bg-zinc-100 text-zinc-600 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
-                >
-                    إلغاء العملية
-                </motion.button>
+
+                <div>
+                    <motion.button
+                        whileHover={{ backgroundColor: "#f4f4f5" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={clearCart}
+                        className="w-full bg-zinc-100 text-zinc-600 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                    >
+                        إلغاء العملية
+                    </motion.button>
+                    
+
+                </div>
             </div>
         </div>
     );

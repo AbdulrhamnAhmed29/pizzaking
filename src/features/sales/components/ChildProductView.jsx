@@ -25,7 +25,7 @@ const ChildProductView = ({
             <ArrowRight size={22} className="text-zinc-300 group-hover:text-white" />
           </button>
           <div className="space-y-1">
-            <h2 className="text-xl font-bold text-white">{selectedParent.name} <span className={`${selectedParent.bulk_quantity ? "" : "hidden"}`}>({selectedParent.bulk_quantity})</span></h2>
+            <h2 className="text-xl font-bold text-white">{selectedParent.name} <span className={`${selectedParent.bulk_quantity ? "" : "hidden"}`}></span></h2>
             <p className="text-zinc-500 text-xs font-medium">اختر النوع أو المقاس</p>
             <p className="text-zinc-500 text-xs font-medium">  </p>
 

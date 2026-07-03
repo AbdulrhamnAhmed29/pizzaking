@@ -8,8 +8,7 @@ export const useOrderMutation = () => {
     const { data } = useGetProducts();
 
     const playSaleSound = () => {
-        const audio = new Audio('/sound/sell.mp3');
-        audio.play().catch(err => console.log("الصوت محتاج تفاعل أولاً"));
+       
     };
     const mutation = useMutation({
         mutationFn: async ({ orderData, cart }) => {
@@ -34,8 +33,9 @@ export const useOrderMutation = () => {
             const orderDocId = orderResponse?.documentId;
 
             const itemPromises = cart.map(async (item) => {
-                const productType = item.product_type || item.attributes?.[0]?.name;
-                const isService = productType === PRODUCT_TYPE.SERVICE;
+                const productType = item.type ;
+                const isService = productType === PRODUCT_TYPE.SERVICES;
+                console.log("Processing item:", isService);
                 const is_bulk = item.attribute_sets?.[0]?.name === BULK.BULK;
                 const originalProduct = data?.data?.find(p => p.documentId === item.documentId);
 
@@ -71,7 +71,7 @@ export const useOrderMutation = () => {
                         unit_price: item.cost_price,
                         sub_total: item.cost_price * item.quantity,
                         attribute_sets: item.attribute_sets?.[0]?.documentId,
-                        product_type: productType
+                        product_type: item.attributes?.[0]?.name 
                     }
                 };
 
@@ -90,13 +90,15 @@ export const useOrderMutation = () => {
         },
         onSuccess: async () => {
             playSaleSound();
-            await queryClient.cancelQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({
-                queryKey: ["products"],
-                refetchType: 'all'
+            await queryClient.invalidateQueries({
+                queryKey: ['products']
             });
-            console.log("تم التحديث بنجاح بدون ريفرش للصفحة");
-        },
+
+            await queryClient.refetchQueries({
+                queryKey: ['products'],
+                type: 'active'
+            });
+        }
     });
     const updateMutation = useMutation({
         mutationFn: ({ id, payload }) => servicesOrders.updateOrder(id, {

@@ -10,10 +10,13 @@ import { CustomToast } from '../../../ui/ToastComponent';
 import { ReceiptDesign } from '../../orders/components/Receipt';
 import { useReactToPrint } from 'react-to-print';
 import { BULK, PRODUCT_TYPE } from '../../../constants/orderStatus';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 
 const POSPage = () => {
+  const queryClient = useQueryClient()
+
   //  products array 
   const { allProducts } = useNotifications();
   //  cart array 
@@ -21,8 +24,7 @@ const POSPage = () => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
-  console.log(cart);
-  
+
   // search input 
   const [searchTerm, setSearchTerm] = useState('');
   //  filtration 
@@ -34,9 +36,11 @@ const POSPage = () => {
   const [toast, setToast] = useState({ show: false, message: "" });
 
   // reciept data 
-
   const [dataToPrint, setDataToPrint] = useState(null);
-
+  const contentRef = useRef(null);
+  const handlePrint = useReactToPrint({
+    contentRef: contentRef,
+  });
 
   //  Model 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,20 +48,32 @@ const POSPage = () => {
   const { createOrder, isLoading } = useOrderMutation();
 
 
-  const contentRef = useRef(null);
-  const handlePrint = useReactToPrint({
-    contentRef: contentRef,
-  });
+  const playSaleSound = () => {
+    const audio = new Audio('/sound/sell.mp3');
+    audio.play().catch(err => console.log("الصوت محتاج تفاعل أولاً"));
+  };
+
 
   const handleConfirm = (formData) => {
+
     createOrder({ orderData: formData, cart: cart },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          playSaleSound();
+          await queryClient.invalidateQueries({
+            queryKey: ['products']
+          });
+
+          await queryClient.refetchQueries({
+            queryKey: ['products'],
+            type: 'active'
+          });
           handlePrint()
           setCart([]);
-          setTimeout(() => {
-            setDataToPrint(null);
-          }, 1000);
+
+          // setTimeout(() => {
+          //   setDataToPrint(null);
+          // }, 1000);
         },
         onError: (error) => {
           console.error("Error:", error);
@@ -137,11 +153,17 @@ const POSPage = () => {
   const addToCart = useCallback((product) => {
     setCart(prev => {
       const existing = prev.find(item => item.documentId === product.documentId);
-      const qtyInCart = existing ? existing.quantity : 0;
+      const qtyInCart = existing ? existing.quantity : null;
       const productType = product.type;
       const isProduct = productType === PRODUCT_TYPE.PRODUCT;
-      if (isProduct) {
-        if (qtyInCart + 1 > Number(product.quantity || 0) ) {
+      const parentProduct = allProducts.find(p => p.documentId === product.parent_id);
+
+      const isBulk = product.attribute_sets?.[0]?.name === BULK.BULK;
+
+
+
+      if (isProduct && !isBulk) {
+        if (qtyInCart + 1 > Number(product.quantity || 0)) {
           setToast({
             show: true,
             message: `عفواً، لا يوجد رصيد كافٍ من ${product.name} (المتوفر: ${product.quantity})`,
@@ -150,6 +172,21 @@ const POSPage = () => {
           return prev;
         }
       }
+      if (isBulk) {
+        const bulkQty = Number(parentProduct?.bulk_quantity || 0);
+        console.log("is bulk is work ");
+        if (bulkQty <= 0) {
+          console.log("is bulk ");
+
+          setToast({
+            show: true,
+            message: `عفواً، لا يوجد رصيد كافٍ من ${product.name}`,
+            type: 'error'
+          });
+          return prev;
+        }
+      }
+
 
       if (existing) {
         return prev.map(item =>
@@ -161,7 +198,7 @@ const POSPage = () => {
       setToast({ show: true, message: `تم إضافة ${product.name} للسلة` });
       return [...prev, { ...product, quantity: 1 }];
     });
-  }, []);
+  }, [allProducts]);
 
   const scannedProduct = useMemo(() => {
     if (!searchTerm || !allProducts) return null;
@@ -249,12 +286,11 @@ const POSPage = () => {
       />
 
       {dataToPrint && (
-        <div className='hidden'>
+        <div className=''>
           <ReceiptDesign
             ref={contentRef}
             orderData={dataToPrint.orderData}
             cart={dataToPrint.cart}
-
           />
         </div>
       )}

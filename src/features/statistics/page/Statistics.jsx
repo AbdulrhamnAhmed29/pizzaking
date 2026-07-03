@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Wallet, Zap, Package, TrendingUp, AlertCircle, Printer } from 'lucide-react';
 import { useStatistcs } from '../hooks/useStatistics';
 import { motion, animate } from 'framer-motion';
 import { ThermalReceipt } from './ThermalReceipt';
+import { useReactToPrint } from 'react-to-print';
 //  animation for Number 
 const AnimatedNumber = ({ value }) => {
     const [displayValue, setDisplayValue] = useState(0);
@@ -17,9 +18,17 @@ const AnimatedNumber = ({ value }) => {
 };
 const Statistics = () => {
     const { reportsOrders, ReportsExpesnse, startDay, endDay, setEndDay, setStartDay } = useStatistcs();
-    const handlePrintReceipt = () => {
-        window.print();
-    };
+
+
+    // ==== print receipt ref ====
+    const receiptRef = useRef(null);
+    console.log(receiptRef.current);
+    console.log(receiptRef.current?.offsetHeight);
+    const handlePrintReceipt = useReactToPrint({
+        contentRef: receiptRef,
+
+    })
+
     // reducer function to calculate reports  
     const metrics = useMemo(() => {
         if (!reportsOrders) return { sales: 0, received: 0, debt: 0, count: 0, cashCount: 0, creditCount: 0, totalCost: 0, profit: 0 };
@@ -30,8 +39,7 @@ const Statistics = () => {
             acc.received += paid;
             acc.debt += (final - paid);
             acc.count += 1;
-            
-            const orderCost = curr.order_items?.reduce((sum, item) => 
+            const orderCost = curr.order_items?.reduce((sum, item) =>
                 sum + (Number(item.buying_price || 0) * Number(item.quantityInOrder || 0)), 0) || 0;
             acc.totalCost += orderCost;
             acc.profit += (final - orderCost);
@@ -71,12 +79,16 @@ const Statistics = () => {
         });
         return Object.values(productMap).sort((a, b) => b.totalProfit - a.totalProfit);
     }, [reportsOrders]);
+    // ==== total discount ===
+    const totalDicount = reportsOrders?.reduce((acc, curr) => acc + Number(curr.discount || 0), 0);
+
     // cards for ui 
     const cards = [
         { label: 'إجمالي المبيعات', value: metrics.sales, icon: Zap, color: '#D4AF37' },
         { label: 'المصروفات', value: totalExpenses, icon: Wallet, color: '#D4AF37' },
         { label: 'الآجل (ديون)', value: metrics.debt, icon: AlertCircle, color: '#D4AF37' },
-        { label: 'الدرج (الخزنة)', value: metrics.received - totalExpenses, icon: TrendingUp, color: '#D4AF37' },
+        { label: 'الخصومات', value: totalDicount, icon: AlertCircle, color: '#D4AF37' },
+        { label: 'الدرج (الخزنة)', value: metrics.received - (totalExpenses + totalDicount) > 0 ? metrics.received - (totalExpenses + totalDicount) : 0, icon: TrendingUp, color: '#D4AF37' },
         { label: 'صافي الربح', value: netProfit, icon: TrendingUp, color: netProfit >= 0 ? '#10B981' : '#EF4444' },
         { label: 'إجمالي الطلبات', value: metrics.count, icon: Package, color: '#D4AF37', isUnit: false },
         { label: 'طلبات كاش', value: metrics.cashCount, icon: Package, color: '#D4AF37', isUnit: false },
@@ -106,17 +118,19 @@ const Statistics = () => {
                     }
                 }
                 .dir-rtl { direction: rtl; }
-            `}</style>           
+            `}</style>
             <div className="print:hidden">
                 <h1 className="text-4xl font-black mb-8">لوحة <span className="text-[#D4AF37]">الإحصائيات</span></h1>
-
+                <button onClick={() => window.print()}>
+                    Test Print
+                </button>
                 <div className="flex justify-between items-center mb-10 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
                     <div className="flex gap-6">
                         <input type="date" value={startDay} onChange={(e) => setStartDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border" />
                         <input type="date" value={endDay} onChange={(e) => setEndDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border" />
                     </div>
 
-                    <button 
+                    <button
                         onClick={handlePrintReceipt}
                         className="flex items-center gap-2 bg-[#D4AF37] hover:bg-[#bfa032] text-black font-black px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
                     >
@@ -130,7 +144,7 @@ const Statistics = () => {
                         <motion.div key={i} className="bg-white p-6 shadow-xl rounded-2xl border-b-4" style={{ borderBottomColor: card.color }}>
                             <p className="text-gray-400 text-sm font-black uppercase">{card.label}</p>
                             <h3 className="text-2xl font-black mt-2">
-                                <AnimatedNumber value={card.value} /> 
+                                <AnimatedNumber value={card.value} />
                                 {card.isUnit !== false && <span className="text-xs text-gray-400"> ج.م</span>}
                             </h3>
                         </motion.div>
@@ -145,7 +159,7 @@ const Statistics = () => {
                         {topSellingProducts.map((product, i) => {
                             const percentage = (product.totalProfit / maxProfit) * 100;
                             const profitPerUnit = product.totalQty > 0 ? (product.totalProfit / product.totalQty) : 0;
-                            
+
                             return (
                                 <div key={i} className="group">
                                     <div className="flex justify-between items-end mb-2">
@@ -160,7 +174,7 @@ const Statistics = () => {
                                         </div>
                                     </div>
                                     <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <motion.div 
+                                        <motion.div
                                             initial={{ width: 0 }}
                                             animate={{ width: `${percentage}%` }}
                                             transition={{ duration: 1.5, ease: "easeOut" }}
@@ -174,14 +188,18 @@ const Statistics = () => {
                 </div>
             </div>
 
-            <ThermalReceipt 
-                startDay={startDay}
-                endDay={endDay}
-                metrics={metrics}
-                totalExpenses={totalExpenses}
-                netProfit={netProfit}
-                topSellingProducts={topSellingProducts}
-            />
+            <div className="thermal-receipt-container hidden ">
+                <ThermalReceipt
+                    startDay={startDay}
+                    endDay={endDay}
+                    metrics={metrics}
+                    totalExpenses={totalExpenses}
+                    netProfit={netProfit}
+                    topSellingProducts={topSellingProducts}
+                    totalDicount={totalDicount}
+                    receiptRef={receiptRef}
+                />
+            </div>
         </div>
     );
 };

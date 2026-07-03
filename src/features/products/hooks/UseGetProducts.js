@@ -6,9 +6,10 @@ export const useGetProducts = (id) => {
   const [searchTerm, setSearchTerm] = useState();
   // 1- Get all products 
   const { data = [], isLoading, error, refetch, } = useQuery({
-    queryKey: ['products', searchTerm ],
+    queryKey: ['products', searchTerm],
     queryFn: () => productService.getProducts(searchTerm),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   return {

@@ -1,10 +1,10 @@
 import React from 'react';
 
-export const ThermalReceipt = ({ startDay, endDay, metrics, totalExpenses, netProfit, topSellingProducts }) => {
+export const ThermalReceipt = ({ receiptRef,startDay, endDay, metrics, totalExpenses, netProfit, topSellingProducts ,totalDicount}) => {
     const printDate = new Date().toLocaleString('ar-EG', { hour12: true });
 
     return (
-        <div className="thermal-receipt-container hidden print:block w-[80mm] p-4 bg-white text-black text-xs dir-rtl text-right mx-auto font-sans antialiased">
+        <div ref={receiptRef} className="thermal-receipt-container block w-[80mm] p-4 bg-white text-black text-xs dir-rtl text-right mx-auto font-sans antialiased">
             <style>{`
                 .thermal-receipt-container {
                     font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
@@ -29,7 +29,8 @@ export const ThermalReceipt = ({ startDay, endDay, metrics, totalExpenses, netPr
                 <div className="flex justify-between"><span>إجمالي المبيعات:</span> <span className="font-bold">{metrics.sales.toLocaleString()} ج.م</span></div>
                 <div className="flex justify-between"><span>الاجل (ديون):</span> <span className="font-bold">{metrics.debt.toLocaleString()} ج.م</span></div>
                 <div className="flex justify-between"><span>المصروفات:</span> <span className="font-bold">{totalExpenses.toLocaleString()} - ج.م</span></div>
-                <div className="flex justify-between"><span>الدرج (الخزنة):</span> <span className="font-bold">{(metrics.received - totalExpenses).toLocaleString()} ج.م</span></div>
+                <div className="flex justify-between"><span>الخصومات:</span> <span className="font-bold">{totalDicount} - ج.م</span></div>
+                <div className="flex justify-between"><span>الدرج (الخزنة):</span> <span className="font-bold">{(metrics.received - totalExpenses - totalDicount).toLocaleString()} ج.م</span></div>
                 <div className="border-b border-dotted border-black my-1"></div>
                 <div className="flex justify-between font-bold text-sm"><span>صافي الربح:</span> <span className="text-base font-bold">{netProfit.toLocaleString()} ج.م</span></div>
                 <div className="border-b border-dotted border-black my-1"></div>
