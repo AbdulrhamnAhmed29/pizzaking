@@ -44,12 +44,12 @@ const ProductCard = ({ product, onSelect }) => {
         </h3>
 
         <div className="flex justify-between items-center pt-4 border-t border-zinc-50">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <span className={`text-[10px] text-zinc-400 font-bold ${product.bulk_quantity <= 0 ? "hidden" : ""}`}>كمية السايب</span>
             <span className="text-sm font-black text-zinc-900">
               {product.bulk_quantity > 0 ? product.bulk_quantity : ""}
             </span>
-          </div>
+          </div> */}
 
           <motion.div
             initial={{ x: 0 }}

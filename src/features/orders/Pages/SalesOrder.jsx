@@ -10,12 +10,6 @@ function SalesOrder() {
         error,
 
     } = useOrders();
-
-
-
-
-
-
     if (error) {
         return (
             <div className="p-6 text-center">

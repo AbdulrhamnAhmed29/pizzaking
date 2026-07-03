@@ -45,9 +45,7 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
             finalPrice: finalPrice,
             barcode: `INV-${Date.now().toString().slice(-6)}`
         };
-        onConfirm(finalFData);
-        console.log(finalFData);
-        
+        onConfirm(finalFData);        
         reset();
     };
 
@@ -97,7 +95,6 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                 {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
                             </div>
                         
-
                             <div className="flex gap-4">
                                 {/* Discount */}
                                 <div className="flex-1">
