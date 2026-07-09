@@ -6,14 +6,12 @@ export const NotificationContext = createContext()
 export const NotificationProvider = ({ children }) => {
   const { data: product } = useGetProducts()
   
-  const products = product.data
+  const products = product?.data
   const prevCountRef = useRef(0);
 
   const lowStockProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
-
-    return products.filter(product => {
-      
+    return products?.filter(product => {    
       const isLowBulk = (product.parent_id === null && product.bulk_quantity > 0 && product.bulk_quantity < 30);
       const isLowQuantity = (product.quantity !== null && product.quantity > 0 && product.quantity < 21);
       return isLowBulk || isLowQuantity;

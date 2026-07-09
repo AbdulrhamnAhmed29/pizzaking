@@ -11,10 +11,6 @@ function OrderDetails() {
     const order = orderById || null;
 
 
-
-
-
-
     if (isLoadingSingle) return (
         <div className="flex justify-center items-center h-screen bg-gray-50">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-600"></div>
@@ -119,10 +115,10 @@ function OrderDetails() {
                             <span>{(order.total_price || 0).toLocaleString('ar-EG')} ج.م</span>
                         </div>
 
-                        {order?.update_price ?
+                        {order.update_price > 0 ?
                             <div className="flex justify-between text-[11px] font-bold text-gray-700 ">
                                 <span>فرق السعر (+):</span>
-                                <span>+{order.update_price.toLocaleString('ar-EG')} ج.م</span>
+                                <span>+{order.update_price} ج.م</span>
                             </div>
                             :
                             ""
@@ -139,6 +135,12 @@ function OrderDetails() {
                             <div className="flex justify-between text-[11px] text-red-600 font-bold">
                                 <span>المدفوع مسبقا (-):</span>
                                 <span>-{(order.paid_amount || 0).toLocaleString('ar-EG')} ج.م</span>
+                            </div>
+                        )}
+                        {order.paid_amount > 0 && (
+                            <div className="flex justify-between text-[11px]  font-bold">
+                                <span> الباقي :</span>
+                                <span>{(order.final_price - order.paid_amount || 0).toLocaleString('ar-EG')} ج.م</span>
                             </div>
                         )}
                     </div>

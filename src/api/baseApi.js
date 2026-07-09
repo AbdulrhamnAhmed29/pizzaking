@@ -3,7 +3,7 @@ import api from './axiosConfig'
 // global crud functions for all resources, using the configured axios instance 
 const BaseApi = {
   getAll: async (resource, params) => {
-    const { data } = await api.get(resource, params)
+    const {data} = await api.get(resource, params)
     return data
   },
 

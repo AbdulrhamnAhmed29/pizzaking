@@ -34,8 +34,9 @@ const UpdateOrderPage = () => {
     const watchedAction = watch("priceAction");
     const watched = watch("paid");
     const watchStatus = watch("paymentStatus");
-    console.log(watchStatus);
 
+
+    console.log(orderById, "orderById");
 
 
 
@@ -46,9 +47,9 @@ const UpdateOrderPage = () => {
                 customerName: orderById.customers?.name,
                 customerPhone: orderById.customers?.phone,
                 paymentStatus: orderById.status_order,
-                update_price: 0,
+                update_price: "",
                 priceAction: orderById.update_price < 0 ? "minus" : "plus",
-                paid_amount: orderById.paid_amount,
+                paid: "",
             });
         }
     }, [orderById, reset]);
@@ -57,6 +58,7 @@ const UpdateOrderPage = () => {
 
 
     const onSubmit = (data) => {
+        console.log("Form Data:", data);
         const adjustment = data.priceAction === "minus"
             ? -Number(data.update_price)
             : Number(data.update_price);
@@ -83,7 +85,6 @@ const UpdateOrderPage = () => {
             }
         };
 
-        console.log(payload);
         update({ id, payload }, {
             onSuccess: () => {
                 Swal.fire({
@@ -170,17 +171,7 @@ const UpdateOrderPage = () => {
                                     {errors.customerName && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerName.message}</p>}
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-zinc-400 uppercase tracking-widest mr-1">رقم العميل </label>
-                                    <input
-                                        {...register("customerPhone",)}
-                                        className={`w-full bg-zinc-50 border ${errors.customerPhone ? 'border-red-500' : 'border-zinc-400'} p-4 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 transition-all font-bold text-zinc-800`}
-                                        placeholder="أدخل رقم العميل..."
-                                    />
-                                    {errors.customerPhone && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.customerPhone.message}</p>}
-                                </div>
-                            </div>
+                           
                         </div>
 
                         {/* Section 2: Payment & Price Adjustment */}

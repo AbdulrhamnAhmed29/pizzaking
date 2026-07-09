@@ -15,16 +15,13 @@ export const useStatistcs = () => {
         queryFn: () => servicesOrders.getOrdersToReports(startDay, endDay),
         keepPreviousData: true,
     });
-
+ 
     // to Expenses reports 
 
     const { data: ReportsExpesnse } = useQuery({
         queryKey: ["expensesReports", endDay, startDay],
         queryFn: () => ExpensesServises.getExpensesToReports(startDay, endDay),
     });
-
-
-
 
 
     return {

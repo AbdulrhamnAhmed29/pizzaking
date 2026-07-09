@@ -22,8 +22,6 @@ const Statistics = () => {
 
     // ==== print receipt ref ====
     const receiptRef = useRef(null);
-    console.log(receiptRef.current);
-    console.log(receiptRef.current?.offsetHeight);
     const handlePrintReceipt = useReactToPrint({
         contentRef: receiptRef,
 
@@ -32,7 +30,7 @@ const Statistics = () => {
     // reducer function to calculate reports  
     const metrics = useMemo(() => {
         if (!reportsOrders) return { sales: 0, received: 0, debt: 0, count: 0, cashCount: 0, creditCount: 0, totalCost: 0, profit: 0 };
-        return reportsOrders.reduce((acc, curr) => {
+        return reportsOrders?.reduce((acc, curr) => {
             const final = Number(curr.final_price || 0);
             const paid = Number(curr.paid_amount || 0);
             acc.sales += final;
@@ -49,6 +47,7 @@ const Statistics = () => {
             return acc;
         }, { sales: 0, received: 0, debt: 0, count: 0, cashCount: 0, creditCount: 0, totalCost: 0, profit: 0 });
     }, [reportsOrders]);
+  
     // expenses data 
     const totalExpenses = useMemo(() => {
         return ReportsExpesnse?.reduce((acc, curr) => acc + Number(curr.price || 0), 0) || 0;
@@ -59,7 +58,7 @@ const Statistics = () => {
     const topSellingProducts = useMemo(() => {
         if (!reportsOrders) return [];
         const productMap = {};
-        reportsOrders.forEach((order) => {
+        reportsOrders?.forEach((order) => {
             order.order_items?.forEach((item) => {
                 const productName = item.product?.name || "منتج غير معروف";
                 const productSize = item.product_type || "بدون نوع";
@@ -121,9 +120,7 @@ const Statistics = () => {
             `}</style>
             <div className="print:hidden">
                 <h1 className="text-4xl font-black mb-8">لوحة <span className="text-[#D4AF37]">الإحصائيات</span></h1>
-                <button onClick={() => window.print()}>
-                    Test Print
-                </button>
+              
                 <div className="flex justify-between items-center mb-10 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
                     <div className="flex gap-6">
                         <input type="date" value={startDay} onChange={(e) => setStartDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border" />

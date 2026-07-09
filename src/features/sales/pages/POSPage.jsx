@@ -71,9 +71,9 @@ const POSPage = () => {
           handlePrint()
           setCart([]);
 
-          // setTimeout(() => {
-          //   setDataToPrint(null);
-          // }, 1000);
+          setTimeout(() => {
+            setDataToPrint(null);
+          }, 1000);
         },
         onError: (error) => {
           console.error("Error:", error);
@@ -286,7 +286,7 @@ const POSPage = () => {
       />
 
       {dataToPrint && (
-        <div className=''>
+        <div className='hidden'>
           <ReceiptDesign
             ref={contentRef}
             orderData={dataToPrint.orderData}
