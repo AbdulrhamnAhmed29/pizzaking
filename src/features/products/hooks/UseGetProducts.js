@@ -8,8 +8,7 @@ export const useGetProducts = (id) => {
   const { data = [], isLoading, error, refetch, } = useQuery({
     queryKey: ['products', searchTerm],
     queryFn: () => productService.getProducts(searchTerm),
-    staleTime: 0,
-    gcTime: 0,
+  
   });
 
   return {

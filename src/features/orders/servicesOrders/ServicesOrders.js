@@ -79,11 +79,9 @@ export const servicesOrders = {
                 pageSize: 3000
             },
         }, { encodeValuesOnly: true });
-
         const fullUrl = `/orders?${query}`;
-
-        const { data } = await BaseApi.getAll(fullUrl);
-        return data;
+        const res = await BaseApi.getAll(fullUrl);
+        return res.data;
     },
     getOrderById: async (id) => {
         const query = "populate[0]=customers&populate[1]=order_items.product";
