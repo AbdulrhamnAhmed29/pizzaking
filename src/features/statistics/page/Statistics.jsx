@@ -87,7 +87,7 @@ const Statistics = () => {
         { label: 'المصروفات', value: totalExpenses, icon: Wallet, color: '#D4AF37' },
         { label: 'الآجل (ديون)', value: metrics.debt, icon: AlertCircle, color: '#D4AF37' },
         { label: 'الخصومات', value: totalDicount, icon: AlertCircle, color: '#D4AF37' },
-        { label: 'الدرج (الخزنة)', value: metrics.received - (totalExpenses + totalDicount) > 0 ? metrics.received - (totalExpenses + totalDicount) : 0, icon: TrendingUp, color: '#D4AF37' },
+        { label: 'الدرج (الخزنة)', value: metrics.received - (totalExpenses ) > 0 ? metrics.received - (totalExpenses) : 0, icon: TrendingUp, color: '#D4AF37' },
         { label: 'صافي الربح', value: netProfit, icon: TrendingUp, color: netProfit >= 0 ? '#10B981' : '#EF4444' },
         { label: 'إجمالي الطلبات', value: metrics.count, icon: Package, color: '#D4AF37', isUnit: false },
         { label: 'طلبات كاش', value: metrics.cashCount, icon: Package, color: '#D4AF37', isUnit: false },
