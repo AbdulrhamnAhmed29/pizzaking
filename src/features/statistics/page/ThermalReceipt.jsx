@@ -30,7 +30,7 @@ export const ThermalReceipt = ({ receiptRef,startDay, endDay, metrics, totalExpe
                 <div className="flex justify-between"><span>الاجل (ديون):</span> <span className="font-bold">{metrics.debt.toLocaleString()} ج.م</span></div>
                 <div className="flex justify-between"><span>المصروفات:</span> <span className="font-bold">{totalExpenses.toLocaleString()} - ج.م</span></div>
                 <div className="flex justify-between"><span>الخصومات:</span> <span className="font-bold">{totalDicount} - ج.م</span></div>
-                <div className="flex justify-between"><span>الدرج (الخزنة):</span> <span className="font-bold">{(metrics.received - totalExpenses - totalDicount).toLocaleString()} ج.م</span></div>
+                <div className="flex justify-between"><span>الدرج (الخزنة):</span> <span className="font-bold">{(metrics.received - totalExpenses ).toLocaleString()} ج.م</span></div>
                 <div className="border-b border-dotted border-black my-1"></div>
                 <div className="flex justify-between font-bold text-sm"><span>صافي الربح:</span> <span className="text-base font-bold">{netProfit.toLocaleString()} ج.م</span></div>
                 <div className="border-b border-dotted border-black my-1"></div>

@@ -24,7 +24,7 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
   });
 
   const onSubmit = (data) => {
-    console.log(data);   
+    console.log(data);
     clearData();
     return Mutate(data);
   };
@@ -117,9 +117,14 @@ export default function ProductForm({ categories, brands, Mutate, attributeSet, 
                 <input type="number" {...register(`variants.${index}.quantity`, { required: "مطلوب", valueAsNumber: true })} className="border p-2 rounded-md text-sm outline-none" />
                 {errors.variants?.[index]?.quantity && <span className="text-[10px] text-red-500">مطلوب</span>}
               </div>
-                <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1">
                 <label className="text-xs font-bold text-stone-900">الباركود</label>
-                <input type="number" {...register(`variants.${index}.barcode`)} className="border p-2 rounded-md text-sm outline-none" />
+                <input type="text" {...register(`variants.${index}.barcode`)} className="border p-2 rounded-md text-sm outline-none" onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    console.log("🚫 Enter blocked");
+                    e.preventDefault();
+                  }
+                }} />
               </div>
 
               <div className="flex items-end">
