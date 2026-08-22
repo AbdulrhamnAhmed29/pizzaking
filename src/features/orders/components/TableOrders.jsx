@@ -6,10 +6,12 @@ import { useOrderMutation } from '../hooks/useMutationOrders';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { ORDER_STATUS } from '../../../constants/orderStatus';
+import { useCustomer } from '../../customers/hooks/useCustomerMutation';
 
 
 function SalesOrder() {
     const { remove } = useOrderMutation()
+    const { customers } = useCustomer()
     const {
         // orders data 
         orders,
@@ -160,14 +162,30 @@ function SalesOrder() {
                     <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                         {/* Modern Search */}
                         <div className="relative flex-grow md:flex-initial">
-                            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                            <input
-                                type="text"
-                                value={searchItem}
-                                placeholder="ابحث بالاسم أو الباركود..."
-                                className="w-full md:w-72 pr-10 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 outline-none transition-all text-sm"
-                                onChange={(e) => setSearchitem(e.target.value)}
+                            <Search
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 z-10"
+                                size={16}
                             />
+
+                            <select
+                                value={searchItem}
+                                onChange={(e) => setSearchitem(e.target.value)}
+                                className="w-full md:w-72 pr-10 pl-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl
+                   focus:ring-4 focus:ring-amber-500/5 focus:border-amber-500 text-black
+                   outline-none transition-all text-sm appearance-none cursor-pointer"
+                            >
+                                <option value="">كل العملاء</option>
+
+                                {customers?.map((customer) => (
+                                    <option
+                                        key={customer.value}
+                                        value={customer.value}
+                                        className='text-black'
+                                    >
+                                        {customer.name}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         {/* Status Filter */}
                         <div className="relative">
