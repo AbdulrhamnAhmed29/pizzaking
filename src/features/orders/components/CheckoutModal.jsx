@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import {ORDER_STATUS}  from "../../../constants/orderStatus"
+import { ORDER_STATUS } from "../../../constants/orderStatus"
+import { useCustomer } from "../../customers/hooks/useCustomerMutation";
 const backdropVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
@@ -20,7 +21,7 @@ const modalVariants = {
 
 export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoading, setCart }) => {
 
-    
+
     const {
         register,
         handleSubmit,
@@ -29,7 +30,7 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
         formState: { errors }
     } = useForm({
         defaultValues: {
-            customerName: "عميل نقدي",
+            customerId: "",
             paymentStatus: "كاش",
             customerPhone: "",
             discount: 0,
@@ -45,7 +46,7 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
             finalPrice: finalPrice,
             barcode: `INV-${Date.now().toString().slice(-6)}`
         };
-        onConfirm(finalFData);        
+        onConfirm(finalFData);
         reset();
     };
 
@@ -54,7 +55,10 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
         localStorage.removeItem("cart");
         onClose();
     };
-
+    const { customers } = useCustomer()
+    console.log(customers);
+    const clients = customers || []
+    const paymentStatus = watch("paymentStatus");
 
 
     return (
@@ -85,16 +89,28 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
 
                         <div className="p-6 space-y-5">
                             {/* Customer Name */}
-                            <div>
+                            <div className={`${paymentStatus === ORDER_STATUS.CREDIT ? "" : "hidden"}`}>
                                 <label className="block text-sm mb-1.5 font-semibold text-zinc-700">اسم العميل</label>
-                                <input
-                                    {...register("customerName", { required: "اسم العميل مطلوب" })}
-                                    autoFocus
-                                    className="w-full border border-zinc-300 p-2.5 rounded-xl outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
-                                />
-                                {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
+                                <select
+                                    {...register("customerId", {
+                                        required:
+                                            paymentStatus === ORDER_STATUS.CREDIT
+                                                ? "اسم العميل مطلوب"
+                                                : false,
+                                    })}
+                                    className="w-full border border-zinc-300 p-2.5 rounded-xl outline-none bg-white focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all appearance-none"
+                                >
+                                    <option value="">اختر عميلًا</option>
+                                    {clients?.map((customer) => (
+                                        <option key={customer.documentId} value={customer.documentId}>
+                                            {customer.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.customerId && <p className="text-red-500 text-xs mt-1">{errors.customerId.message}</p>}
                             </div>
-                        
+
+
                             <div className="flex gap-4">
                                 {/* Discount */}
                                 <div className="flex-1">
@@ -120,8 +136,8 @@ export const CheckoutModal = ({ isOpen, onClose, onConfirm, totalAmount, isLoadi
                                         <option value={ORDER_STATUS.CREDIT}>آجل</option>
                                     </select>
                                 </div>
-                            </div>
 
+                            </div>
                             {/* Financial Summary */}
                             <motion.div
                                 layout

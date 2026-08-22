@@ -8,20 +8,16 @@ export const useOrderMutation = () => {
     const { data } = useGetProducts();
 
     const playSaleSound = () => {
-       
+
     };
     const mutation = useMutation({
         mutationFn: async ({ orderData, cart }) => {
-            const customerResponse = await servicesOrders.createCustomer({
-                data: {
-                    name: orderData.customerName.trim(),
-                    phone: orderData.customerPhone,
-                }
-            });
-            const customerId = customerResponse?.documentId;
             const orderResponse = await servicesOrders.createOrder({
                 data: {
-                    customers: customerId,
+                    customers:
+                        orderData.paymentStatus === ORDER_STATUS.CREDIT
+                            ? orderData.customerId
+                            : null,
                     total_price: orderData.totalPrice,
                     status_order: orderData.paymentStatus,
                     discount: orderData.discount,
@@ -33,7 +29,7 @@ export const useOrderMutation = () => {
             const orderDocId = orderResponse?.documentId;
 
             const itemPromises = cart.map(async (item) => {
-                const productType = item.type ;
+                const productType = item.type;
                 const isService = productType === PRODUCT_TYPE.SERVICES;
                 console.log("Processing item:", isService);
                 const is_bulk = item.attribute_sets?.[0]?.name === BULK.BULK;
@@ -71,7 +67,7 @@ export const useOrderMutation = () => {
                         unit_price: item.cost_price,
                         sub_total: item.cost_price * item.quantity,
                         attribute_sets: item.attribute_sets?.[0]?.documentId,
-                        product_type: item.attributes?.[0]?.name 
+                        product_type: item.attributes?.[0]?.name
                     }
                 };
 
