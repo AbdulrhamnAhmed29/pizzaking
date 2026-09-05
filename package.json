@@ -12,6 +12,8 @@
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "13.5.0",
     "axios": "1.15.0",
+    "baseline-browser-mapping": "^2.11.20",
+    "caniuse-lite": "^1.0.30001810",
     "framer-motion": "12.38.0",
     "js-cookie": "3.0.5",
     "lucide-react": "1.8.0",

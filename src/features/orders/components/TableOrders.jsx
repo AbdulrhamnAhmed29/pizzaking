@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, } from 'react';
 import { useOrders } from "../../orders/hooks/useGetOrders";
 import * as XLSX from 'xlsx';
-import { Search, Download, Eye, Pencil, Trash2, Filter, } from 'lucide-react';
+import { Search, Download, Trash2, Filter, Eye, } from 'lucide-react';
 import { useOrderMutation } from '../hooks/useMutationOrders';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
 import { ORDER_STATUS } from '../../../constants/orderStatus';
 import { useCustomer } from '../../customers/hooks/useCustomerMutation';
+import { Link } from 'react-router-dom';
 
 
 function SalesOrder() {
@@ -37,30 +37,60 @@ function SalesOrder() {
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    const paidTotal = ordersArray?.reduce((acc, curr) => {
-        const total = curr?.paid_amount || 0;
-        const changeToNumber = Number(total);
-        return acc + changeToNumber;
-    }, 0) || 0;
+
     const totalSales = ordersArray?.reduce((acc, order) => acc + (order.final_price || 0), 0) || 0;
     const totalOrders = ordersArray?.length || 0;
-    const handleRemove = (id) => {
-        Swal.fire({
-            title: 'هل أنت متأكد؟',
-            text: "بمجرد الحذف، سيتم خصم قيمة هذه الفاتورة من إجمالي المبيعات نهائياً!",
-            icon: 'warning',
+    const handleRemove = async (id) => {
+        // أولاً: طلب الباسورد
+        const passwordResult = await Swal.fire({
+            title: "صلاحية الحذف",
+            text: "أدخل كلمة المرور للمتابعة",
+            input: "password",
+            inputPlaceholder: "كلمة المرور",
+            inputAttributes: {
+                maxlength: 4,
+                autocapitalize: "off",
+                autocorrect: "off",
+            },
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'نعم، احذف الآن',
-            cancelButtonText: 'إلغاء',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                remove(id);
+            confirmButtonText: "متابعة",
+            cancelButtonText: "إلغاء",
+            confirmButtonColor: "#18181b",
+            cancelButtonColor: "#71717a",
+            reverseButtons: true,
 
-            }
+            inputValidator: (value) => {
+                if (!value) {
+                    return "من فضلك أدخل كلمة المرور";
+                }
+
+                if (value !== "2468") {
+                    return "كلمة المرور غير صحيحة";
+                }
+
+                return null;
+            },
         });
+
+        // لو الباسورد صح
+        if (passwordResult.isConfirmed) {
+
+            const confirmResult = await Swal.fire({
+                title: "هل أنت متأكد؟",
+                text: "بمجرد الحذف، سيتم حذف الفاتورة نهائياً!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "نعم، احذف الآن",
+                cancelButtonText: "إلغاء",
+                reverseButtons: true,
+            });
+
+            if (confirmResult.isConfirmed) {
+                remove(id);
+            }
+        }
     };
     const searchInputRef = useRef(null);
     useEffect(() => {
@@ -105,26 +135,8 @@ function SalesOrder() {
                 </svg>
             )
         },
-        {
-            id: "paidTotal",
-            title: "إجمالي المدفوعات",
-            value: paidTotal,
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-            )
-        },
-        {
-            id: "total-sales",
-            title: "الاجل(الباقي)",
-            value: Number(totalSales) - paidTotal,
-            icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            )
-        },
+
+
     ];
     return (
         <div className="w-full min-h-screen bg-[#fcfcfc] p-4 md:p-8 font-arabic text-right" dir="rtl">
@@ -231,8 +243,6 @@ function SalesOrder() {
                                 <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase text-center">نوع الدفع</th>
                                 <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase text-center">الخصم</th>
                                 <th className={`px-6 py-5  text-xs font-black text-gray-400 uppercase text-center`}>المبلغ بعد الخصم</th>
-                                <th className={`px-6 py-5 text-xs font-black text-gray-400 uppercase text-center`}>المدفوع</th>
-                                <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase text-center"> المتبقي (عليه) </th>
                                 <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase text-center">توقيت العملية</th>
                                 <th className="px-6 py-5 text-xs font-black text-gray-400 uppercase text-center">الإجراءات</th>
                             </tr>
@@ -261,16 +271,8 @@ function SalesOrder() {
                                             {order.final_price} <small className="text-[10px]">ج.م</small>
                                         </span>
                                     </td>
-                                    <td className={` py-5 px-6 text-center`}>
-                                        <span className="text-sm font-black text-zinc-900 font-sans bg-zinc-50 px-3 py-1 rounded-md">
-                                            {order.paid_amount?.toLocaleString()} <small className="text-[10px]">ج.م</small>
-                                        </span>
-                                    </td>
-                                    <td className="py-5 px-6 text-center">
-                                        <span className="text-sm font-black text-zinc-900 font-sans bg-zinc-50 px-3 py-1 rounded-md">
-                                            {order.final_price - order.paid_amount} <small className="text-[10px]">ج.م</small>
-                                        </span>
-                                    </td>
+
+
                                     <td className="py-5 px-6 text-center">
                                         <div className="flex flex-col items-center">
                                             <span className="text-xs font-bold text-gray-700">{new Date(order.createdAt).toLocaleDateString('ar-EG', {
@@ -285,11 +287,7 @@ function SalesOrder() {
                                             <Link to={`/orderDetails/${order.documentId}`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="عرض">
                                                 <Eye size={18} />
                                             </Link>
-                                            <button className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-xl transition-all" title="تعديل">
-                                                <Link to={`/update_order/${order.documentId}`}>
-                                                    <Pencil size={18} />
-                                                </Link>
-                                            </button>
+
                                             <button onClick={() => handleRemove(order.documentId)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="حذف">
                                                 <Trash2 size={18} />
                                             </button>

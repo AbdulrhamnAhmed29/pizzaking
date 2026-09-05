@@ -12,6 +12,7 @@ export const useOrderMutation = () => {
     };
     const mutation = useMutation({
         mutationFn: async ({ orderData, cart }) => {
+            console.log("orderData", orderData);
             const orderResponse = await servicesOrders.createOrder({
                 data: {
                     customers:

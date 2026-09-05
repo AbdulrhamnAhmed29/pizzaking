@@ -2,7 +2,6 @@ import React, { Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { routes } from './routes'
-import { NotificationProvider } from './shared/context/NotificationContext'
 import { AuthGuard } from './ui/AuthGuard'
 
 const queryClient = new QueryClient({
@@ -71,11 +70,9 @@ const LoadingSpinner = () => (
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <NotificationProvider>
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
-      </NotificationProvider>
     </QueryClientProvider>
   )
 }

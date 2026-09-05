@@ -17,31 +17,67 @@ function ExpensesPage() {
         setStatus
     } = useExpenses();
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: "هل أنت متأكد؟",
-            text: "لن تتمكن من استعادة هذا المصرف بعد الحذف!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#D4AF37",
-            cancelButtonColor: "#f44336",
-            confirmButtonText: "نعم، احذفه!",
-            cancelButtonText: "إلغاء",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                remove(id);
+ const handleDelete = async (id) => {
+    // طلب كلمة المرور
+    const passwordResult = await Swal.fire({
+        title: "صلاحية الحذف",
+        text: "أدخل كلمة المرور للمتابعة",
+        input: "password",
+        inputPlaceholder: "كلمة المرور",
+        inputAttributes: {
+            maxlength: 4,
+            autocapitalize: "off",
+            autocorrect: "off",
+        },
+        showCancelButton: true,
+        confirmButtonColor: "#D4AF37",
+        cancelButtonColor: "#f44336",
+        confirmButtonText: "متابعة",
+        cancelButtonText: "إلغاء",
+        reverseButtons: true,
 
-                Swal.fire({
-                    title: "تم الحذف!",
-                    text: "تم حذف المصرف بنجاح.",
-                    icon: "success",
-                    confirmButtonColor: "#D4AF37",
-                    timer: 1500
-                });
+        inputValidator: (value) => {
+            if (!value) {
+                return "من فضلك أدخل كلمة المرور";
             }
-        });
-    };
+
+            if (value !== "2468") {
+                return "كلمة المرور غير صحيحة";
+            }
+
+            return null;
+        },
+    });
+
+    // لو الباسورد غلط أو ضغط إلغاء
+    if (!passwordResult.isConfirmed) return;
+
+    // تأكيد الحذف
+    const confirmResult = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لن تتمكن من استعادة هذا المصرف بعد الحذف!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#D4AF37",
+        cancelButtonColor: "#f44336",
+        confirmButtonText: "نعم، احذفه!",
+        cancelButtonText: "إلغاء",
+        reverseButtons: true,
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    remove(id);
+
+    Swal.fire({
+        title: "تم الحذف!",
+        text: "تم حذف المصرف بنجاح.",
+        icon: "success",
+        confirmButtonColor: "#D4AF37",
+        timer: 1500,
+        showConfirmButton: false,
+    });
+};
 
 
     const total = useMemo(() => {

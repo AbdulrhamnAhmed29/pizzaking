@@ -4,7 +4,11 @@ import { useStatistcs } from '../hooks/useStatistics';
 import { motion, animate } from 'framer-motion';
 import { ThermalReceipt } from './ThermalReceipt';
 import { useReactToPrint } from 'react-to-print';
-//  animation for Number 
+import { ORDER_STATUS } from '../../../constants/orderStatus';
+
+
+
+// Animation for Number 
 const AnimatedNumber = ({ value }) => {
     const [displayValue, setDisplayValue] = useState(0);
     useEffect(() => {
@@ -16,49 +20,103 @@ const AnimatedNumber = ({ value }) => {
     }, [value]);
     return <span>{displayValue.toLocaleString()}</span>;
 };
-const Statistics = () => {
-    const { reportsOrders, ReportsExpesnse, startDay, endDay, setEndDay, setStartDay } = useStatistcs();
 
+const Statistics = () => {
+    const { reportsOrders, ReportsExpesnse, reportsCustomer, startDay, endDay, setEndDay, setStartDay } = useStatistcs();
 
     // ==== print receipt ref ====
     const receiptRef = useRef(null);
     const handlePrintReceipt = useReactToPrint({
         contentRef: receiptRef,
+    });
+    console.log("reportsCustomer", reportsCustomer);
+    const totalCreditPayments = useMemo(() => {
+        if (!reportsCustomer) return 0;
+        return reportsCustomer.reduce((total, customer) => {
+            const customerPayments = customer.payments?.reduce(
+                (sum, pay) => {
+                    return sum + Number(pay.payed_amount || pay.amount || 0);
 
-    })
+                }, 0
+            ) || 0;
+            return total + customerPayments;
+        }, 0);
+    }, [reportsCustomer]);
 
-    // reducer function to calculate reports  
-    const metrics = useMemo(() => {
-        if (!reportsOrders) return { sales: 0, received: 0, debt: 0, count: 0, cashCount: 0, creditCount: 0, totalCost: 0, profit: 0 };
-        return reportsOrders?.reduce((acc, curr) => {
-            const final = Number(curr.final_price || 0);
-            const paid = Number(curr.paid_amount || 0);
-            acc.sales += final;
-            acc.received += paid;
-            acc.debt += (final - paid);
-            acc.count += 1;
-            const orderCost = curr.order_items?.reduce((sum, item) =>
-                sum + (Number(item.buying_price || 0) * Number(item.quantityInOrder || 0)), 0) || 0;
-            acc.totalCost += orderCost;
-            acc.profit += (final - orderCost);
-
-            if (paid >= final) acc.cashCount += 1;
-            else acc.creditCount += 1;
-            return acc;
-        }, { sales: 0, received: 0, debt: 0, count: 0, cashCount: 0, creditCount: 0, totalCost: 0, profit: 0 });
-    }, [reportsOrders]);
-  
-    // expenses data 
     const totalExpenses = useMemo(() => {
         return ReportsExpesnse?.reduce((acc, curr) => acc + Number(curr.price || 0), 0) || 0;
     }, [ReportsExpesnse]);
-    // netProfit data 
-    const netProfit = metrics.sales - metrics.totalCost - totalExpenses;
-    // top selling products 
+
+    // 3. حسابات الأوردرات الشاملة (المبيعات، الربح، الآجل، الكاش، الخصومات)
+    const metrics = useMemo(() => {
+        if (!reportsOrders) return {
+            sales: 0,
+            creditTotal: 0,
+            cashTotal: 0,
+            count: 0,
+            cashCount: 0,
+            creditCount: 0,
+            totalDiscount: 0,
+            grossProfit: 0
+        };
+
+        return reportsOrders.reduce((acc, curr) => {
+            const finalPrice = Number(curr.final_price || 0);
+            const discount = Number(curr.discount || 0);
+
+            // إجمالي المبيعات من كل الأوردرات
+            acc.sales += finalPrice;
+            acc.totalDiscount += discount;
+            acc.count += 1;
+
+            // فلترة وحساب الأوردرات الآجل والكاش بناءً على status_order
+            if (curr.status_order === ORDER_STATUS.CREDIT) {
+                acc.creditTotal += finalPrice;
+                acc.creditCount += 1;
+            } else {
+                acc.cashTotal += finalPrice;
+                acc.cashCount += 1;
+            }
+
+            // حساب أرباح الأوردر (سعر البيع - سعر الشراء) * الكمية
+            const orderProfit = curr.order_items?.reduce((sum, item) => {
+                const qty = Number(item.quantityInOrder || 0);
+                const unitSelling = Number(item.unit_price || 0);
+                const unitBuying = Number(item.buying_price || 0);
+                return sum + ((unitSelling - unitBuying) * qty);
+            }, 0) || 0;
+
+            acc.grossProfit += orderProfit;
+
+            return acc;
+        }, {
+            sales: 0,
+            creditTotal: 0,
+            cashTotal: 0,
+            count: 0,
+            cashCount: 0,
+            creditCount: 0,
+            totalDiscount: 0,
+            grossProfit: 0
+        });
+    }, [reportsOrders]);
+
+    // ==== الحسابات النهائية المضبوطة للميزانية ====
+
+    // الآجل المتبقي (الديون) = إجمالي الأوردرات الآجل - التسويات المدفوعة
+    const remainingCreditDebt = Math.max(0, metrics.creditTotal - totalCreditPayments);
+
+    // الدرج (الخزنة) = (مبيعات الكاش + تسويات الآجل) - المصروفات
+    const cashInDrawer = (metrics.cashTotal + totalCreditPayments) - totalExpenses;
+
+    // صافي الربح = مجموع ربح القطع المبيعة - المصروفات
+    const netProfit = metrics.grossProfit - totalExpenses;
+
+    // المنتجات الأكثر ربحية
     const topSellingProducts = useMemo(() => {
         if (!reportsOrders) return [];
         const productMap = {};
-        reportsOrders?.forEach((order) => {
+        reportsOrders.forEach((order) => {
             order.order_items?.forEach((item) => {
                 const productName = item.product?.name || "منتج غير معروف";
                 const productSize = item.product_type || "بدون نوع";
@@ -68,6 +126,7 @@ const Statistics = () => {
                 const unitBuyingPrice = Number(item.buying_price || 0);
                 const profitPerUnit = unitSellingPrice - unitBuyingPrice;
                 const totalProfitForThisItem = profitPerUnit * qty;
+
                 if (productMap[uniqueKey]) {
                     productMap[uniqueKey].totalQty += qty;
                     productMap[uniqueKey].totalProfit += totalProfitForThisItem;
@@ -78,53 +137,43 @@ const Statistics = () => {
         });
         return Object.values(productMap).sort((a, b) => b.totalProfit - a.totalProfit);
     }, [reportsOrders]);
-    // ==== total discount ===
-    const totalDicount = reportsOrders?.reduce((acc, curr) => acc + Number(curr.discount || 0), 0);
 
-    // cards for ui 
+    // كروت واجهة المستخدم
     const cards = [
         { label: 'إجمالي المبيعات', value: metrics.sales, icon: Zap, color: '#D4AF37' },
-        { label: 'المصروفات', value: totalExpenses, icon: Wallet, color: '#D4AF37' },
-        { label: 'الآجل (ديون)', value: metrics.debt, icon: AlertCircle, color: '#D4AF37' },
-        { label: 'الخصومات', value: totalDicount, icon: AlertCircle, color: '#D4AF37' },
-        { label: 'الدرج (الخزنة)', value: metrics.received - (totalExpenses ) > 0 ? metrics.received - (totalExpenses) : 0, icon: TrendingUp, color: '#D4AF37' },
+        { label: 'المصروفات', value: totalExpenses, icon: Wallet, color: '#EF4444' },
+        { label: 'الآجل (الديون الحالية)', value: remainingCreditDebt, icon: AlertCircle, color: '#F59E0B' },
+        { label: 'الخصومات', value: metrics.totalDiscount, icon: AlertCircle, color: '#D4AF37' },
+        { label: 'الدرج (الخزنة)', value: cashInDrawer > 0 ? cashInDrawer : 0, icon: TrendingUp, color: '#10B981' },
         { label: 'صافي الربح', value: netProfit, icon: TrendingUp, color: netProfit >= 0 ? '#10B981' : '#EF4444' },
         { label: 'إجمالي الطلبات', value: metrics.count, icon: Package, color: '#D4AF37', isUnit: false },
         { label: 'طلبات كاش', value: metrics.cashCount, icon: Package, color: '#D4AF37', isUnit: false },
         { label: 'طلبات أجل', value: metrics.creditCount, icon: Package, color: '#D4AF37', isUnit: false },
     ];
+
     const maxProfit = Math.max(...topSellingProducts.map(p => p.totalProfit), 1);
+
     return (
         <div className="p-6 bg-[#FDFDFD] min-h-screen text-[#1F1F1F] font-arabic relative" dir="rtl">
             <style>{`
                 @media print {
-                    body * {
-                        visibility: hidden;
-                    }
-                    .thermal-receipt-container, .thermal-receipt-container * {
-                        visibility: visible;
-                    }
+                    body * { visibility: hidden; }
+                    .thermal-receipt-container, .thermal-receipt-container * { visibility: visible; }
                     .thermal-receipt-container {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 80mm;
-                        display: block !important;
+                        position: absolute; left: 0; top: 0; width: 80mm; display: block !important;
                     }
-                    @page {
-                        size: 80mm auto;
-                        margin: 0;
-                    }
+                    @page { size: 80mm auto; margin: 0; }
                 }
                 .dir-rtl { direction: rtl; }
             `}</style>
+
             <div className="print:hidden">
                 <h1 className="text-4xl font-black mb-8">لوحة <span className="text-[#D4AF37]">الإحصائيات</span></h1>
-              
+
                 <div className="flex justify-between items-center mb-10 p-5 bg-white rounded-2xl shadow-sm border border-gray-100">
                     <div className="flex gap-6">
-                        <input type="date" value={startDay} onChange={(e) => setStartDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border" />
-                        <input type="date" value={endDay} onChange={(e) => setEndDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border" />
+                        <input type="date" value={startDay} onChange={(e) => setStartDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border font-bold outline-none" />
+                        <input type="date" value={endDay} onChange={(e) => setEndDay(e.target.value)} className="px-4 py-2 rounded-xl bg-gray-50 border font-bold outline-none" />
                     </div>
 
                     <button
@@ -185,15 +234,19 @@ const Statistics = () => {
                 </div>
             </div>
 
-            <div className="thermal-receipt-container hidden ">
+            <div className="thermal-receipt-container hidden">
                 <ThermalReceipt
                     startDay={startDay}
                     endDay={endDay}
-                    metrics={metrics}
+                    metrics={{
+                        ...metrics,
+                        debt: remainingCreditDebt,
+                        received: cashInDrawer
+                    }}
                     totalExpenses={totalExpenses}
                     netProfit={netProfit}
                     topSellingProducts={topSellingProducts}
-                    totalDicount={totalDicount}
+                    totalDicount={metrics.totalDiscount}
                     receiptRef={receiptRef}
                 />
             </div>

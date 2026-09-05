@@ -33,7 +33,7 @@ const CartSidebar = ({ cart, setCart, cartTotal, isOpen, onClose, onOpen }) => {
     };
 
     return (
-        <div className="w-[380px] h-[540px] pb-2 bg-white border-r border-zinc-100 shadow-2xl flex flex-col overflow-hidden">
+        <div className="w-[380px] h-[650px] pb-2 bg-white border-r border-zinc-100 shadow-2xl flex flex-col overflow-hidden">
             {/* Header Section */}
             <div className="p-5 bg-zinc-900 text-white rounded-bl-[3rem] shadow-lg relative overflow-hidden">
                 <div className="flex justify-between items-center mb-3">

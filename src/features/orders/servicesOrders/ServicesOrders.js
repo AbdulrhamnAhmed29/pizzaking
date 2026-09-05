@@ -39,7 +39,7 @@ export const servicesOrders = {
         const pageSize = selectedDate ? 1000 : 30;
         const query = qs.stringify({
             filters: filters.$and.length > 0 ? filters : {},
-            populate: '*',
+            populate: ["customers", "order_items.product"],
             sort: ['createdAt:desc'],
             pagination: {
                 page: page,
@@ -98,10 +98,31 @@ export const servicesOrders = {
         return res
     },
 
-    // customer 
-    createCustomer: async (payload) => {
-        const { data } = await BaseApi.create("/customers", payload);
-        return data;
+    getCustomerReports: async (startDay, endDay) => {
+        const filters = {
+            $and: []
+        };
+        if (startDay && endDay) {
+            filters.$and.push({
+                createdAt: {
+                    $gte: `${startDay}T00:00:00.000+03:00`,
+                    $lte: `${endDay}T23:59:59.999+03:00`
+                }
+            });
+        }
+
+        const query = qs.stringify({
+            filters: filters.$and.length > 0 ? filters : {},
+            populate: ["order_items.product"],
+            sort: ['createdAt:desc'],
+            pagination: {
+                page: 1,
+                pageSize: 3000
+            },
+        }, { encodeValuesOnly: true });
+        const fullUrl = `/customers?${query}`;
+        const res = await BaseApi.getAll(fullUrl);
+        return res.data;
     },
 
     // order items 

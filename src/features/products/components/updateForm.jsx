@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 import { PRODUCT_TYPE } from '../../../constants/orderStatus';
 
 function UpdateForm({ attributeSet, attributes, allProducts, brands, update, categories }) {
@@ -9,6 +9,7 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
     const Categories = categories || [];
     const Attributes = attributes || [];
     const attribute_set = attributeSet || [];
+    const navigate =useNavigate();
     // 1- get documntId from use url  
     // ________________________________
     const { id: targetId } = useParams();
@@ -74,6 +75,7 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
             id: targetId,
             payload: data
         });;
+        
         return sendData
     }
     return (
@@ -176,7 +178,7 @@ function UpdateForm({ attributeSet, attributes, allProducts, brands, update, cat
                                 <label className="text-xs font-bold text-stone-900">الكمية</label>
                                 <input
                                     type="number"
-                                    {...register(`variants.${index}.quantity`, { valueAsNumber: true, required: true })}
+                                    {...register(`variants.${index}.quantity`,)}
                                     className="border border-gray-300 p-2 rounded-md text-sm outline-none"
                                 />
                             </div>
