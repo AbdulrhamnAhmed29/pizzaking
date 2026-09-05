@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import {
     Menu, LogOut, LayoutDashboard, Droplets, X,
-    Box, Wallet, ShoppingCart, AlertTriangle,
-    ChevronRight, ChevronLeft
+    Wallet, ShoppingCart,
+    ChevronRight, ChevronLeft,
+    Package,
+    Users,
+    Receipt
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useLogout } from '../features/auth'
@@ -39,10 +42,11 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         });
     }
     const menuItems = [
-        { path: '/pos', label: 'ابداء البيع', icon: ShoppingCart },
-        { path: '/products', label: 'المخزون', icon: Box },
-        { path: '/Sales', label: 'المبيعات', icon: Wallet },
-        { path: '/restock', label: 'المنتجات الناقصة', icon: AlertTriangle },
+        { path: '/pos', label: 'بدء البيع', icon: ShoppingCart },
+        { path: '/brands', label: '    البراند والشركات ', icon: Droplets },
+        { path: '/products', label: 'المخزون', icon: Package },
+        { path: '/clients', label: ' العملاء و المديونية', icon: Users },
+        { path: '/Sales', label: 'المبيعات', icon: Receipt },
         { path: '/expense', label: 'المصاريف', icon: Wallet },
         { path: '/dashboard', label: 'الإحصائيات', icon: LayoutDashboard },
     ];

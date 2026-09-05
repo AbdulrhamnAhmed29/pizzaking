@@ -16,7 +16,7 @@ const productService = {
       populate: '*',
       sort: ['createdAt:desc'],
       pagination: {
-        limit:2000,
+        limit:20000,
       },
     }, { encodeValuesOnly: true });
     const res = await BaseApi.getAll(`/products?${query}`);

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useNotifications } from '../../../shared/context/NotificationContext';
 import SearchAndFilters from '../components/SearchAndFilters';
 import ProductCard from '../components/ProductGrid';
 import ChildProductView from '../components/ChildProductView';
@@ -8,9 +7,10 @@ import { CheckoutModal } from '../../orders/components/CheckoutModal';
 import { useOrderMutation } from "../../orders/hooks/useMutationOrders"
 import { CustomToast } from '../../../ui/ToastComponent';
 import { ReceiptDesign } from '../../orders/components/Receipt';
-import { useReactToPrint } from 'react-to-print';
+// import { useReactToPrint } from 'react-to-print';
 import { BULK, PRODUCT_TYPE } from '../../../constants/orderStatus';
 import { useQueryClient } from '@tanstack/react-query';
+import { useGetProducts } from '../../products/hooks/UseGetProducts';
 
 
 
@@ -18,7 +18,12 @@ const POSPage = () => {
   const queryClient = useQueryClient()
 
   //  products array 
-  const { allProducts } = useNotifications();
+  const { data } = useGetProducts()
+  const allProducts = data?.data||[]
+  console.log(allProducts);
+  const parentProduct = allProducts.filter(product => product.parent_id !== null);
+  console.log(parentProduct.length);
+  
   //  cart array 
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem("cart");
@@ -38,9 +43,9 @@ const POSPage = () => {
   // reciept data 
   const [dataToPrint, setDataToPrint] = useState(null);
   const contentRef = useRef(null);
-  const handlePrint = useReactToPrint({
-    contentRef: contentRef,
-  });
+  // const handlePrint = useReactToPrint({
+  //   contentRef: contentRef,
+  // });
 
   //  Model 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +73,7 @@ const POSPage = () => {
             queryKey: ['products'],
             type: 'active'
           });
-          handlePrint()
+          // handlePrint()
           setCart([]);
 
           setTimeout(() => {
@@ -157,8 +162,9 @@ const POSPage = () => {
       const productType = product.type;
       const isProduct = productType === PRODUCT_TYPE.PRODUCT;
       const parentProduct = allProducts.find(p => p.documentId === product.parent_id);
-
       const isBulk = product.attribute_sets?.[0]?.name === BULK.BULK;
+      console.log(isBulk)
+      
 
 
 

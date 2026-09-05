@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import productService from '../services/Services'
 import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom';
 
 export const useMutationProduct = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   //1- add product function 
   // _______________________
   const addMutation = useMutation({
@@ -55,6 +57,7 @@ export const useMutationProduct = () => {
         text: 'تم إضافة المنتج بنجاح',
         confirmButtonColor: '#D4AF37',
       })
+      // navigate("/products");
 
     },
     onError: (error) => {
@@ -124,6 +127,8 @@ export const useMutationProduct = () => {
         text: 'تم تحديث المنتج بنجاح',
         confirmButtonColor: '#D4AF37'
       });
+            navigate("/products");
+
 
     },
     onError: (error) => {

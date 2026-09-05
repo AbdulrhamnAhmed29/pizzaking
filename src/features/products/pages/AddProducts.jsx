@@ -46,6 +46,7 @@ function AddProducts() {
                     Mutate={mutate}
                     attributeSet={attributeSet}
                     attribute={attributes}
+                    // path="/products"
                 />
             </div>
         </div>

@@ -58,6 +58,7 @@ function UpdateProduct() {
                     attributeSet={attributeSet}
                     allProducts={data}
                     update={update}
+                    
                 />
             </div>
         </div>
